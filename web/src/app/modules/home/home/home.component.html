@@ -1,30 +1,32 @@
-<div>
-  <legend>Ultimas vendas</legend>
-  <table mat-table [dataSource]="sales" class="mat-elevation-z8">
+<mat-card class="content">
+  <app-toolbar [title]="'Ultimas Vendas'" [color]="'primary'"></app-toolbar>
 
-    <!--- Note that these columns can be defined in any order.
-          The actual rendered columns are set as a property on the row definition" -->
+  <div class="table-content" *ngIf="sales | async as salesList; else loading">
+    <table mat-table [dataSource]="salesList" class="mat-elevation-z8">
+      <!-- Id Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>Id</th>
+        <td mat-cell *matCellDef="let sale">{{ sale.id }}</td>
+      </ng-container>
 
-    <!-- Id Column -->
-    <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef> Id </th>
-      <td mat-cell *matCellDef="let sale"> {{sale.id}} </td>
-    </ng-container>
+      <!-- Vendedor Column -->
+      <ng-container matColumnDef="seller">
+        <th mat-header-cell *matHeaderCellDef>Vendedor</th>
+        <td mat-cell *matCellDef="let sale">{{ sale.seller }}</td>
+      </ng-container>
 
-    <!-- Vendedor Column -->
-    <ng-container matColumnDef="seller">
-      <th mat-header-cell *matHeaderCellDef> Vendedor </th>
-      <td mat-cell *matCellDef="let sale"> {{sale.seller}} </td>
-    </ng-container>
+      <!-- Total Column -->
+      <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let sale">{{ sale.amount }}</td>
+      </ng-container>
 
-    <!-- Total Column -->
-    <ng-container matColumnDef="amount">
-      <th mat-header-cell *matHeaderCellDef> Total </th>
-      <td mat-cell *matCellDef="let sale"> {{sale.amount}} </td>
-    </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-
-</div>
+  <ng-template #loading>
+    <app-load-spinner-circle class="spinner"></app-load-spinner-circle>
+  </ng-template>
+</mat-card>

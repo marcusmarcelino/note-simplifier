@@ -1,18 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { catchError, Observable, of } from 'rxjs';
 import { Sale } from 'src/app/models/sale';
+import { SnackbarComponent } from 'src/app/shared/components/snackbar/snackbar.component';
 
-const ELEMENT_DATA: Sale[] = [
-  {id: 1, seller: 'Hydrogen', amount: 1.0079},
-  {id: 2, seller: 'Helium', amount: 4.0026},
-  {id: 3, seller: 'Lithium', amount: 6.941},
-  {id: 4, seller: 'Beryllium', amount: 9.0122},
-  {id: 5, seller: 'Boron', amount: 10.811},
-  {id: 6, seller: 'Carbon', amount: 12.0107},
-  {id: 7, seller: 'Nitrogen', amount: 14.0067},
-  {id: 8, seller: 'Oxygen', amount: 15.9994},
-  {id: 9, seller: 'Fluorine', amount: 18.9984},
-  {id: 10, seller: 'Neon', amount: 20.1797},
-];
+import { HomeService } from '../services/home.service';
 
 @Component({
   selector: 'app-home',
@@ -21,10 +14,42 @@ const ELEMENT_DATA: Sale[] = [
 })
 export class HomeComponent implements OnInit {
   displayedColumns: string[] = ['id', 'seller', 'amount'];
-  sales = ELEMENT_DATA;
-  constructor() { }
+  sales: Observable<Sale[]>;
+
+  constructor(
+    private homeService: HomeService,
+    private snackBar: MatSnackBar
+  ) {
+    this.sales = this.homeService.findLastSales()
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.log('Erro ao listar ultimas vendas', error);
+          this.snackBarMsgAlert(3000, `Erro ao listar ultimas vendas - ${error.message}`, 'error');
+          return of([]);
+        })
+      );
+  }
 
   ngOnInit(): void {
   }
 
+  snackBarMsgAlert(
+    duration: number,
+    msg: string,
+    snack: string,
+    verticalPos?: 'top' | 'bottom',
+    horizontalPos?: 'start' | 'center' | 'end' | 'left' | 'right'
+  ): MatSnackBarRef<SnackbarComponent> {
+    return this.snackBar.openFromComponent(SnackbarComponent, {
+      duration,
+      data: {
+        msg,
+        snack,
+        btnClose: true
+      },
+      verticalPosition: verticalPos || 'bottom',
+      horizontalPosition: horizontalPos || 'center',
+      panelClass: `snack-${snack}`
+    });
+  }
 }
