@@ -1,0 +1,10 @@
+<div id="snack-bar"
+  [ngClass]="{'info' : this.classInfo, 'warning' : this.classWarning, 'error' : this.classError,  'success' : this.classSuccess }"
+  class="container-snack-bar">
+  <div class="data">{{data.msg}}</div>
+  <div class="dismiss">
+    <button *ngIf="btnClose" class="btn-snack-bar" (click)="snackBarRef.dismiss()">
+      <i class="material-icons center">close</i>
+    </button>
+  </div>
+</div>
