@@ -1,8 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-import { catchError, Observable, of } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
 import { Sale } from 'src/app/models/sale';
+import { ErrorDialogComponent } from 'src/app/shared/components/error-dialog/error-dialog.component';
 import { SnackbarComponent } from 'src/app/shared/components/snackbar/snackbar.component';
 
 import { HomeService } from '../services/home.service';
@@ -18,13 +20,18 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private homeService: HomeService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.sales = this.homeService.findLastSales()
       .pipe(
+        tap(sales => this.snackBarMsgAlert(3000, `Ultimas vendas localizadas`, 'success')),
         catchError((error: HttpErrorResponse) => {
-          console.log('Erro ao listar ultimas vendas', error);
-          this.snackBarMsgAlert(3000, `Erro ao listar ultimas vendas - ${error.message}`, 'error');
+          if(error.status <= 400) {
+            this.snackBarMsgAlert(3000, `Erro ${error.status}, não há vendas`, 'error');
+          } else {
+            this.modalAlert(error.status, error.message);
+          }
           return of([]);
         })
       );
@@ -51,5 +58,16 @@ export class HomeComponent implements OnInit {
       horizontalPosition: horizontalPos || 'center',
       panelClass: `snack-${snack}`
     });
+  }
+
+  modalAlert(status: number, message: string) {
+    this.dialog.open(ErrorDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Atenção',
+        message: `Erro ${status}. Ao buscar ultimas vendas - ${message}`,
+        btnCloseInHeader: true
+      }
+    })
   }
 }

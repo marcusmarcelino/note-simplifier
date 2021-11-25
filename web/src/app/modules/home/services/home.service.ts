@@ -7,7 +7,7 @@ import { delay, Observable, take, tap } from 'rxjs';
   providedIn: 'root'
 })
 export class HomeService {
-  private readonly api: string = '../../../../assets/amock.json';
+  private readonly api: string = '../../../../assets/mock.json';
 
   constructor(
     private httpClient: HttpClient,

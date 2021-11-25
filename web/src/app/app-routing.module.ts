@@ -11,7 +11,12 @@ const routes: Routes = [
     path: 'profile',
     pathMatch: 'full',
     loadChildren: () => import('./modules/profile/profile.module').then(m => m.ProfileModule)
-  }
+  },
+  // {
+  //   path: 'login',
+  //   pathMatch: 'full',
+  //   loadChildren: () => import('./modules/auth/auth.module').then(m => m.AuthModule)
+  // }
 ];
 
 @NgModule({

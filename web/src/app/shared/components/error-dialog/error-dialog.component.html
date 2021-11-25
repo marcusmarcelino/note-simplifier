@@ -1,1 +1,25 @@
-<p>error-dialog works!</p>
+<header>
+  <div class="container-btn-close" *ngIf="this.btnCloseInHeader">
+    <div></div>
+    <div class="btn-close">
+      <span (click)="close()">X</span>
+    </div>
+  </div>
+
+  <div class="icon-attention">
+    <img [src]="'assets/img/attention.gif'" alt="">
+  </div>
+
+  <div>
+    <h1 class="title">{{this.title}}</h1>
+  </div>
+</header>
+<div class="content-message">
+  <p>{{this.message}}</p>
+</div>
+
+<footer *ngIf="this.btnCloseInFooter">
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Sair</button>
+  </div>
+</footer>
