@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import br.com.apinotesimplifier.interfaces.UserAndPersonalData;
 import br.com.apinotesimplifier.interfaces.UserService;
+import br.com.apinotesimplifier.models.PersonalData;
 import br.com.apinotesimplifier.models.User;
 import lombok.Data;
 
@@ -29,11 +31,11 @@ public class UserController {
   }
 
   @PostMapping("/save")
-  public ResponseEntity<User> saveUser(@RequestBody User user) {
+  public ResponseEntity<User> saveUser(@RequestBody UserAndPersonalData userAndPersonalData) {
     URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toUriString());
-    return ResponseEntity.created(uri).body(this.userService.saveUser(user));
+    return ResponseEntity.created(uri).body(this.userService.saveUser(userAndPersonalData));
   }
-  
+
   @PostMapping("/addtouser")
   public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form) {
     this.userService.addRoleToUser(form.getUsername(), form.getRolename());
@@ -42,7 +44,7 @@ public class UserController {
 }
 
 @Data
-  class RoleToUserForm {
-    private String username;
-    private String rolename;
-  }
+class RoleToUserForm {
+  private String username;
+  private String rolename;
+}

@@ -13,7 +13,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,8 +42,7 @@ public class User {
   @Column(name = "account_status")
   private String accountStatus; // 'expired' | 'active' | 'inactive ' | 'blocked' ''
   
-  @PrimaryKeyJoinColumn
-  @OneToOne(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.EAGER)
-  @JoinColumn(name = "id_personal_data", referencedColumnName = "id", insertable = true, updatable = true)
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinColumn(name = "id_personal_data", referencedColumnName = "id")
   private PersonalData idPersonalData;
 }

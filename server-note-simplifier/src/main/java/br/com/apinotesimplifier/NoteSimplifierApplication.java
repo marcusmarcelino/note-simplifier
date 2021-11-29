@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.context.annotation.Bean;
 
 import br.com.apinotesimplifier.interfaces.RoleService;
+import br.com.apinotesimplifier.interfaces.UserAndPersonalData;
 import br.com.apinotesimplifier.interfaces.UserService;
 import br.com.apinotesimplifier.models.PersonalData;
 import br.com.apinotesimplifier.models.Role;
@@ -29,10 +30,10 @@ public class NoteSimplifierApplication {
 			roleService.saveRole(new Role(null, "ROLE_ADMIN"));
 			roleService.saveRole(new Role(null, "ROLE_SUPER_ADMIN"));
 
-			userService.saveUser(new User(null, "john", "password", new ArrayList<>(), "active", new PersonalData(null, "John Jones", "63985888588", "Centro", "JK", "401", "Ao lado do palacio", "Palmas", "TO", null)));
-			userService.saveUser(new User(null, "mary", "password", new ArrayList<>(), "active", new PersonalData(null, "Mary Jones", "63985888588", "Centro", "JK", "401", "Ao lado do palacio", "Palmas", "TO", null)));
-			userService.saveUser(new User(null, "alex", "password", new ArrayList<>(), "active", new PersonalData(null, "Alex Jones", "63985888588", "Centro", "JK", "401", "Ao lado do palacio", "Maceió", "AL", null)));
-			userService.saveUser(new User(null, "wilson", "password", new ArrayList<>(), "active", new PersonalData(null, "Wilson Jones", "63985888588", "Centro", "JK", "401", "Ao lado do palacio", "Maceió", "AL", null)));
+			userService.saveUser(new UserAndPersonalData(new User(null, "john", "password", new ArrayList<>(), "active", null), new PersonalData(null, "John Jones", "63985888588", "Centro", "JK", "401", "Ao lado do palacio", "Palmas", "TO")));
+			userService.saveUser(new UserAndPersonalData(new User(null, "mary", "password", new ArrayList<>(), "active", null), new PersonalData(null, "Mary Jones", "63985888588", "Centro", "JK", "401", "Ao lado do palacio", "Palmas", "TO")));
+			userService.saveUser(new UserAndPersonalData(new User(null, "alex", "password", new ArrayList<>(), "active", null), new PersonalData(null, "Alex Jones", "63985888588", "Centro", "JK", "401", "Ao lado do palacio", "Maceió", "AL")));
+			userService.saveUser(new UserAndPersonalData(new User(null, "wilson", "password", new ArrayList<>(), "active", null), new PersonalData(null, "Wilson Jones", "63985888588", "Centro", "JK", "401", "Ao lado do palacio", "Maceió", "AL")));
 
 			userService.addRoleToUser("john", "ROLE_USER");
 			userService.addRoleToUser("mary", "ROLE_MANAGER");

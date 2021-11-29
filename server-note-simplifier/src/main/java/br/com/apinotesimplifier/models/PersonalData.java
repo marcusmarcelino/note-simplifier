@@ -1,14 +1,10 @@
 package br.com.apinotesimplifier.models;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,8 +39,4 @@ public class PersonalData {
   private String city;
   @Column(name = "uf")
   private String uf;
-
-  @JoinColumn(name = "id_user",  referencedColumnName = "id", nullable = true, insertable = true, updatable = true)
-  @OneToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private User user;
 }
