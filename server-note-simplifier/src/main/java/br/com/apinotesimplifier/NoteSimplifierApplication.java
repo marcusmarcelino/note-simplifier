@@ -17,7 +17,7 @@ import br.com.apinotesimplifier.models.PersonalData;
 import br.com.apinotesimplifier.models.Role;
 import br.com.apinotesimplifier.models.User;
 
-@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
+@SpringBootApplication // (exclude = SecurityAutoConfiguration.class)
 public class NoteSimplifierApplication {
 
 	public static void main(String[] args) {
@@ -29,8 +29,7 @@ public class NoteSimplifierApplication {
 		return new BCryptPasswordEncoder();
 	}
 	
-
-	@Bean
+	// @Bean
 	CommandLineRunner run(UserService userService, RoleService roleService) {
 		return args -> {
 			roleService.saveRole(new Role(null,"ROLE_USER"));
