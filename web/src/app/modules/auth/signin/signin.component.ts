@@ -12,4 +12,7 @@ export class SigninComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  authenticate() {
+    console.log('Enviar dados ao servidor');
+  }
 }

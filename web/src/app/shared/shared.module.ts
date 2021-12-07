@@ -6,13 +6,15 @@ import { ErrorDialogComponent } from './components/error-dialog/error-dialog.com
 import { LoadSpinnerCircleComponent } from './components/load-spinner-circle/load-spinner-circle.component';
 import { SnackbarComponent } from './components/snackbar/snackbar.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
+import { CustomButtonComponent } from './components/custom-button/custom-button.component';
 
 @NgModule({
   declarations: [
     ToolbarComponent,
     LoadSpinnerCircleComponent,
     SnackbarComponent,
-    ErrorDialogComponent
+    ErrorDialogComponent,
+    CustomButtonComponent
   ],
   imports: [
     CommonModule,
@@ -22,7 +24,8 @@ import { ToolbarComponent } from './components/toolbar/toolbar.component';
     ToolbarComponent,
     LoadSpinnerCircleComponent,
     SnackbarComponent,
-    ErrorDialogComponent
+    ErrorDialogComponent,
+    CustomButtonComponent
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA ]
 })
