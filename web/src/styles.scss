@@ -20,3 +20,39 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .mat-dialog-container {
   padding: 0 !important;
 }
+
+.btn {
+  min-width: 200px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+.btn:hover {
+  filter: brightness(1.1);
+}
+.button-default {
+  background: #52B69A;
+  color: #fff;
+}
+.button-light {
+  background: #00bfe5;
+  color: #fff;
+  font-weight: lighter;
+}
+.button-dark {
+  background: #010221;
+  color: #fff;
+}
+.button-info {
+  background: #0082c8;
+  color: #fff;
+}
+.button-warning {
+  background: #ffbd16;
+  color: #fff;
+}
+.button-error {
+  background: #ec3102;
+  color: #fff;
+}
