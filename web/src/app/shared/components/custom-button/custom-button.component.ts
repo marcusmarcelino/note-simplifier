@@ -7,9 +7,11 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 })
 export class CustomButtonComponent implements OnInit {
   @Input('title') title: string = 'Enviar';
-  @Input('fontSize') fontSize: string = '14';
+  @Input('fontSize') fontSize: string = '14px';
   @Input('textAlign') textAlign: string = 'center';
-  @Input('height') height: string = '30';
+  @Input('borderRadius') borderRadius: string = '4px';
+  @Input('height') height: string = '30px';
+  @Input('width') width: string = 'auto'
   @Input('buttonStyle') buttonStyle:
     'button-default' |
     'button-primary' |

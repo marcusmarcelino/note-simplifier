@@ -38,6 +38,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
   public Authentication attemptAuthentication(
       HttpServletRequest request,
       HttpServletResponse response) throws AuthenticationException {
+    System.out.println("request.body");
     String username = request.getParameter("username");
     String password = request.getParameter("password");
 
@@ -59,7 +60,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
     String access_token = JWT.create()
         .withSubject(user.getUsername())
-        .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+        .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 100000))
         .withIssuer(request.getRequestURL().toString())
         .withClaim("roles",
             user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
@@ -67,7 +68,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     String refresh_token = JWT.create()
         .withSubject(user.getUsername())
-        .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+        .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 100000))
         .withIssuer(request.getRequestURL().toString())
         .sign(algorithm);
     // response.setHeader("access_token", access_token);

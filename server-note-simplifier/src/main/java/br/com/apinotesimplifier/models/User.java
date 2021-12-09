@@ -22,11 +22,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 //@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+// @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Data
 @Entity(name = "users")
 public class User {
   //@EqualsAndHashCode.Include
@@ -37,6 +37,7 @@ public class User {
   private String username;
   @Column(name = "password")
   private String password;
+  @Column(name = "roles")
   @ManyToMany(fetch = FetchType.EAGER)
   private Collection<Role> roles = new ArrayList<>();
   @Column(name = "account_status")

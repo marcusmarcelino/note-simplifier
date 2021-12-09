@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { catchError, Observable, of, tap } from 'rxjs';
-import { Sale } from 'src/app/models/sale';
+import { User } from 'src/app/models/User';
 import { ErrorDialogComponent } from 'src/app/shared/components/error-dialog/error-dialog.component';
 import { SnackbarComponent } from 'src/app/shared/components/snackbar/snackbar.component';
 
@@ -16,7 +16,7 @@ import { HomeService } from '../services/home.service';
 })
 export class HomeComponent implements OnInit {
   displayedColumns: string[] = ['id', 'seller', 'amount'];
-  sales: Observable<Sale[]>;
+  sales: Observable<any[]>;
 
   constructor(
     private homeService: HomeService,

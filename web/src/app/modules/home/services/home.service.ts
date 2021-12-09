@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Sale } from 'src/app/models/sale';
 import { delay, Observable, take, tap } from 'rxjs';
+import { User } from 'src/app/models/User';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +13,8 @@ export class HomeService {
     private httpClient: HttpClient,
   ) { }
 
-  findLastSales(): Observable<Sale[]> {
-    return this.httpClient.get<Sale[]>(this.api,  {
+  findLastSales(): Observable<any[]> {
+    return this.httpClient.get<any[]>(this.api,  {
       headers: new HttpHeaders({
         'Content-Type': 'application/json; charset=utf-8',
         Authorization: 'Bearer ' + 'this.requisicao.getToken()'
