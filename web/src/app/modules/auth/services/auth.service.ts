@@ -13,6 +13,7 @@ export class AuthService {
 
   constructor(private httpClient: HttpClient) {}
 
+  //`?nome=${username}&senha=${password}`
   authenticate(credentials: UserCredentials): Observable<any> {
     const body = new HttpParams();
     body.set('username', credentials.username);

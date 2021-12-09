@@ -1,6 +1,8 @@
 package br.com.apinotesimplifier.filter;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +40,22 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
   public Authentication attemptAuthentication(
       HttpServletRequest request,
       HttpServletResponse response) throws AuthenticationException {
-    System.out.println("request.body");
+
+    System.out.println("============================================================");
+    // User user = new Gson().fromJson(request.getReader(), User.class);
+    StringBuilder stringBuilder = new StringBuilder();
+    try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
+      char[] charBuffer = new char[1024];
+      int bytesRead;
+      while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+        stringBuilder.append(charBuffer, 0, bytesRead);
+      }
+      System.out.println("Teste " + stringBuilder);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    System.out.println("============================================================");
+
     String username = request.getParameter("username");
     String password = request.getParameter("password");
 
