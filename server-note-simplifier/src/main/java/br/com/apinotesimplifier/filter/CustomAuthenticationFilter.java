@@ -44,16 +44,20 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     // System.out.println("============================================================");
     // User user = new Gson().fromJson(request.getReader(), User.class);
     // StringBuilder stringBuilder = new StringBuilder();
-    // try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
-    //   char[] charBuffer = new char[1024];
-    //   int bytesRead;
-    //   while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-    //     stringBuilder.append(charBuffer, 0, bytesRead);
-    //   }
-    //   System.out.println("Teste " + stringBuilder);
-    // } catch (IOException e) {
-    //   e.printStackTrace();
+    // try (BufferedReader bufferedReader = new BufferedReader(new
+    // InputStreamReader(request.getInputStream()))) {
+    // char[] charBuffer = new char[1024];
+    // int bytesRead;
+    // while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+    // stringBuilder.append(charBuffer, 0, bytesRead);
     // }
+    // System.out.println("Teste " + stringBuilder);
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // }
+    // ObjectMapper mapper = new ObjectMapper();
+    // User user = mapper.readValue(stringBuilder, User.class);
+    // System.out.println(stringBuilder.getClass());
     // System.out.println("============================================================");
 
     String username = request.getParameter("username");
@@ -72,7 +76,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
       HttpServletRequest request,
       HttpServletResponse response,
       FilterChain chain,
-      Authentication authentication) throws IOException, ServletException {
+      Authentication authentication
+    ) throws IOException, ServletException {
     User user = (User) authentication.getPrincipal();
     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
     String access_token = JWT.create()
