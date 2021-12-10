@@ -1,7 +1,7 @@
-import { catchError, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TokenResponse } from 'src/app/models/TokenResponse';
 import { UserCredentials } from 'src/app/models/UserCredentials';
 import { AuthService } from '../services/auth.service';
@@ -18,7 +18,8 @@ export class SigninComponent implements OnInit {
   });
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -29,21 +30,19 @@ export class SigninComponent implements OnInit {
     credentials.username = this.loginForm.value.username;
     credentials.password = this.loginForm.value.password;
     this.authService.authenticate(credentials)
-      .pipe(
-        tap((userCredentials: TokenResponse) => {
-          if(userCredentials.access_token !== null || userCredentials.access_token !== undefined) {
-            this.authService.userIsAuthenticated.emit(true);
-          }
-        }),
-      )
       .subscribe({
-        next(resposta: TokenResponse) {
-          console.log('Token gerado ', resposta);
+        next: (userCredentials: TokenResponse) => {
+          console.log('Token gerado ', userCredentials);
+          if(userCredentials.access_token !== null || userCredentials.access_token !== undefined) {
+            this.authService.setUserIsAuthenticated(true);
+            this.router.navigate(['/home']);
+          }
         },
-        error(error: HttpErrorResponse) {
-          console.log('Erro gerado ao realizar login ', error.message)
+        error: (error: HttpErrorResponse) => {
+          console.log('Erro gerado ao realizar login ', error.message);
+          this.authService.setUserIsAuthenticated(false);
         },
-        complete() {
+        complete: () => {
           console.log('Usuário autenticado com sucesso!');
         }
       });

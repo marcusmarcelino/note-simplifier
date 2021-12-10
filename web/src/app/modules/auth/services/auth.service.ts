@@ -10,7 +10,8 @@ import { UserCredentials } from 'src/app/models/UserCredentials';
 export class AuthService {
   api = 'http://localhost:8081/api/login';
 
-  userIsAuthenticated = new EventEmitter<boolean>();
+  isAuthenticated: boolean = false;
+  showMenu = new EventEmitter<boolean>();
 
   constructor(private httpClient: HttpClient) { }
 
@@ -31,5 +32,15 @@ export class AuthService {
         first(),
         // tap(userCredentials => console.log('Authenticate service ', userCredentials))
       )
+  }
+
+
+  setUserIsAuthenticated(value: boolean) {
+    this.isAuthenticated = value;
+    this.showMenu.emit(value);
+  }
+
+  getIsAuthenticate() {
+    return this.isAuthenticated;
   }
 }
