@@ -1,5 +1,8 @@
+import { catchError, tap } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { TokenResponse } from 'src/app/models/TokenResponse';
 import { UserCredentials } from 'src/app/models/UserCredentials';
 import { AuthService } from '../services/auth.service';
 
@@ -10,7 +13,6 @@ import { AuthService } from '../services/auth.service';
 })
 export class SigninComponent implements OnInit {
   loginForm = new FormGroup({
-    // userCredentials: new FormControl(UserCredentials),
     username: new FormControl(''),
     password: new FormControl('')
   });
@@ -23,10 +25,27 @@ export class SigninComponent implements OnInit {
   }
 
   authenticate() {
-    console.log('Enviar dados ao servidor - ', this.loginForm.value);
-    this.authService.authenticate(this.loginForm.value)
-      .subscribe((resposta) => {
-        console.log(resposta);
+    const credentials = new UserCredentials();
+    credentials.username = this.loginForm.value.username;
+    credentials.password = this.loginForm.value.password;
+    this.authService.authenticate(credentials)
+      .pipe(
+        tap((userCredentials: TokenResponse) => {
+          if(userCredentials.access_token !== null || userCredentials.access_token !== undefined) {
+            this.authService.userIsAuthenticated.emit(true);
+          }
+        }),
+      )
+      .subscribe({
+        next(resposta: TokenResponse) {
+          console.log('Token gerado ', resposta);
+        },
+        error(error: HttpErrorResponse) {
+          console.log('Erro gerado ao realizar login ', error.message)
+        },
+        complete() {
+          console.log('Usuário autenticado com sucesso!');
+        }
       });
   }
 }

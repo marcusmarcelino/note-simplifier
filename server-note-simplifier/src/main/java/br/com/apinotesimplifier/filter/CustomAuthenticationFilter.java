@@ -41,20 +41,20 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
       HttpServletRequest request,
       HttpServletResponse response) throws AuthenticationException {
 
-    System.out.println("============================================================");
+    // System.out.println("============================================================");
     // User user = new Gson().fromJson(request.getReader(), User.class);
-    StringBuilder stringBuilder = new StringBuilder();
-    try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
-      char[] charBuffer = new char[1024];
-      int bytesRead;
-      while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-        stringBuilder.append(charBuffer, 0, bytesRead);
-      }
-      System.out.println("Teste " + stringBuilder);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    System.out.println("============================================================");
+    // StringBuilder stringBuilder = new StringBuilder();
+    // try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
+    //   char[] charBuffer = new char[1024];
+    //   int bytesRead;
+    //   while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+    //     stringBuilder.append(charBuffer, 0, bytesRead);
+    //   }
+    //   System.out.println("Teste " + stringBuilder);
+    // } catch (IOException e) {
+    //   e.printStackTrace();
+    // }
+    // System.out.println("============================================================");
 
     String username = request.getParameter("username");
     String password = request.getParameter("password");
