@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable, EventEmitter } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { first, Observable, tap } from 'rxjs';
+import { TokenResponse } from 'src/app/models/TokenResponse';
 import { UserCredentials } from 'src/app/models/UserCredentials';
 
 @Injectable({
@@ -9,16 +10,17 @@ import { UserCredentials } from 'src/app/models/UserCredentials';
 export class AuthService {
   api = 'http://localhost:8081/api/login';
 
-  userIsAuthenticated = new EventEmitter<boolean>();
+  isAuthenticated: boolean = false;
+  showMenu = new EventEmitter<boolean>();
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) { }
 
-  //`?nome=${username}&senha=${password}`
-  authenticate(credentials: UserCredentials): Observable<any> {
-    const body = new HttpParams();
-    body.set('username', credentials.username);
-    body.set('password', credentials.password);
-    return this.httpClient.post<any>(this.api, credentials, {
+  authenticate(credentials: UserCredentials): Observable<TokenResponse> {
+    // const body = new HttpParams();
+    // body.set('username', credentials.username);
+    // body.set('password', credentials.password);
+    return this.httpClient.post<any>(`${this.api}?username=${credentials.username}&password=${credentials.password}`,
+      credentials, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json; charset=utf-8',
         Authorization: 'Bearer ' + '',
@@ -26,9 +28,19 @@ export class AuthService {
         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
       })
     })
-    .pipe(
-      first(),
-      tap(userCredentials => console.log('Authenticate service ', userCredentials))
-    );
+      .pipe(
+        first(),
+        // tap(userCredentials => console.log('Authenticate service ', userCredentials))
+      )
+  }
+
+
+  setUserIsAuthenticated(value: boolean) {
+    this.isAuthenticated = value;
+    this.showMenu.emit(value);
+  }
+
+  getIsAuthenticate() {
+    return this.isAuthenticated;
   }
 }

@@ -9,7 +9,6 @@ import { AppMaterialModule } from 'src/app/shared/app-material/app-material.modu
 import { SharedModule } from 'src/app/shared/shared.module';
 import { PasswordResetComponent } from './password-reset/password-reset.component';
 
-
 @NgModule({
   declarations: [
     SigninComponent,
