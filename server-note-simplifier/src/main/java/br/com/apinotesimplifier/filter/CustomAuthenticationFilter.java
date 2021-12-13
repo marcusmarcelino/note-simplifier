@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,22 +42,17 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
       HttpServletResponse response) throws AuthenticationException {
 
     // System.out.println("============================================================");
-    // User user = new Gson().fromJson(request.getReader(), User.class);
-    // StringBuilder stringBuilder = new StringBuilder();
-    // try (BufferedReader bufferedReader = new BufferedReader(new
-    // InputStreamReader(request.getInputStream()))) {
-    // char[] charBuffer = new char[1024];
-    // int bytesRead;
-    // while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-    // stringBuilder.append(charBuffer, 0, bytesRead);
-    // }
-    // System.out.println("Teste " + stringBuilder);
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // }
-    // ObjectMapper mapper = new ObjectMapper();
-    // User user = mapper.readValue(stringBuilder, User.class);
-    // System.out.println(stringBuilder.getClass());
+    GsonBuilder builder = new GsonBuilder();
+    builder.setPrettyPrinting();
+    Gson gson = builder.create();
+    try {
+      // String body = request.getReader().lines().collect(Collectors.joining()); 
+      // String body = request.getReader().lines().reduce("", (accumulator, actual) -> accumulator + actual);
+      User user = gson.fromJson(request.getReader(), User.class);
+      log.info("Usuario gerado {} ", user);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     // System.out.println("============================================================");
 
     String username = request.getParameter("username");
@@ -64,8 +61,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     log.info("Username is: {}", username);
     log.info("Password is: {}", password);
 
-    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
-        password);
+    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
     return this.authenticationManager.authenticate(authenticationToken);
   }
 
