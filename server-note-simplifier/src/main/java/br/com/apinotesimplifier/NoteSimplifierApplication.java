@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +16,7 @@ import br.com.apinotesimplifier.models.PersonalData;
 import br.com.apinotesimplifier.models.Role;
 import br.com.apinotesimplifier.models.User;
 
-@SpringBootApplication // (exclude = SecurityAutoConfiguration.class)
+@SpringBootApplication
 public class NoteSimplifierApplication {
 
 	public static void main(String[] args) {

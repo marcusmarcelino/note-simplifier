@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 import java.util.Arrays;
 
 import javax.servlet.FilterChain;
@@ -25,7 +24,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import br.com.apinotesimplifier.models.Role;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
