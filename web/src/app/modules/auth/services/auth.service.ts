@@ -1,6 +1,6 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EventEmitter, Injectable } from '@angular/core';
-import { first, Observable, tap } from 'rxjs';
+import { delay, first, Observable, tap } from 'rxjs';
 import { TokenResponse } from 'src/app/models/TokenResponse';
 import { UserCredentials } from 'src/app/models/UserCredentials';
 
@@ -16,9 +16,6 @@ export class AuthService {
   constructor(private httpClient: HttpClient) { }
 
   authenticate(credentials: UserCredentials): Observable<TokenResponse> {
-    // const body = new HttpParams();
-    // body.set('username', credentials.username);
-    // body.set('password', credentials.password);
     return this.httpClient.post<any>(`${this.api}?username=${credentials.username}&password=${credentials.password}`,
       credentials, {
       headers: new HttpHeaders({
@@ -30,7 +27,8 @@ export class AuthService {
     })
       .pipe(
         first(),
-        // tap(userCredentials => console.log('Authenticate service ', userCredentials))
+        tap(userCredentials => console.log('Requisição enviada login')),
+        delay(2000)
       )
   }
 

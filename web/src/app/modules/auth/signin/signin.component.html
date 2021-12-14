@@ -1,20 +1,15 @@
 <div class="container">
   <div class="content">
-    <!-- <img [src]="'assets/img/user-login.png'" alt=""> -->
+    <img [src]="'assets/img/user-login.png'" alt="">
     <form class="form" [formGroup]="loginForm" (ngSubmit)="authenticate()">
       <div class="input-group">
-        <!-- <label for="username">Nome do usuário</label> -->
         <input type="text" name="username" id="username" placeholder="Nome do usuário" formControlName="username">
       </div>
 
       <div class="input-group">
-        <!-- <label for="username">Nome do usuário</label> -->
         <input type="password" name="username" id="username" placeholder="Digite sua senha" formControlName="password">
       </div>
-      <!--
-      <app-custom-button [typeButton]="'submit'" [title]="'Realizar Login'" [width]="'100%'" (handleExec)="authenticate()">
-        Entrar
-      </app-custom-button> -->
+
       <app-custom-button [typeButton]="'submit'" [buttonStyle]="'button-primary'" [title]="'Realizar Login'" [borderRadius]="'15px'"
         [width]="'100%'" [height]="'40px'">Entrar</app-custom-button>
 

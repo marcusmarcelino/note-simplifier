@@ -41,20 +41,20 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
       HttpServletRequest request,
       HttpServletResponse response) throws AuthenticationException {
 
-    // System.out.println("============================================================");
+    // ============================================================
     GsonBuilder builder = new GsonBuilder();
     builder.setPrettyPrinting();
     Gson gson = builder.create();
     try {
-      // String body = request.getReader().lines().collect(Collectors.joining()); 
-      // String body = request.getReader().lines().reduce("", (accumulator, actual) -> accumulator + actual);
+      // String body = request.getReader().lines().collect(Collectors.joining());
+      // String body = request.getReader().lines().reduce("", (accumulator, actual) ->
+      // accumulator + actual);
       User user = gson.fromJson(request.getReader(), User.class);
       log.info("Usuario gerado {} ", user);
     } catch (IOException e) {
       e.printStackTrace();
     }
-    // System.out.println("============================================================");
-
+    // ============================================================
     String username = request.getParameter("username");
     String password = request.getParameter("password");
 
@@ -70,8 +70,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
       HttpServletRequest request,
       HttpServletResponse response,
       FilterChain chain,
-      Authentication authentication
-    ) throws IOException, ServletException {
+      Authentication authentication) throws IOException, ServletException {
     User user = (User) authentication.getPrincipal();
     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
     String access_token = JWT.create()

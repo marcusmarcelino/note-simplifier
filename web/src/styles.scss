@@ -31,7 +31,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   filter: brightness(1.1);
 }
 .button-primary {
-  background: #0d4b6c;
+  background: #5645f7;
   color: #fff;
 }
 .button-default {
@@ -71,3 +71,24 @@ input:focus {
 // input:focus-within {
 //   border: inherit;
 // }
+
+
+.custom-dialog > mat-dialog-container {
+  background: transparent!important;
+  box-shadow: inherit!important;
+}
+
+.custom-dialog > mat-dialog-container {
+  background: transparent!important;
+  box-shadow: inherit!important;
+}
+
+.custom-dialog > .mat-dialog-container mat-spinner {
+  width: 220px!important;
+  height: 220px!important;
+}
+
+.custom-dialog > .mat-dialog-container svg {
+  width: 220px!important;
+  height: 220px!important;
+}

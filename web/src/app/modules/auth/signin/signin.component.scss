@@ -12,12 +12,20 @@
 }
 
 .content {
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+  background-color: #dbdbdb36;
   border: 1px solid #1a90b4;
   -webkit-box-shadow: 5px 5px 5px -4px rgba(0, 0, 0, 0.3);
   box-shadow: 5px 5px 5px -4px rgba(0, 0, 0, 0.3);
   border-radius: 30px;
   padding: 60px;
-  background-color: #dbdbdb36;
+}
+
+.content img {
+  width: 200px;
+  margin: 0 auto;
 }
 
 .form {

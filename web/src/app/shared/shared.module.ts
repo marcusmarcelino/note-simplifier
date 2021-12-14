@@ -7,6 +7,7 @@ import { LoadSpinnerCircleComponent } from './components/load-spinner-circle/loa
 import { SnackbarComponent } from './components/snackbar/snackbar.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { CustomButtonComponent } from './components/custom-button/custom-button.component';
+import { ModalStandbyComponent } from './components/modal-standby/modal-standby.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { CustomButtonComponent } from './components/custom-button/custom-button.
     LoadSpinnerCircleComponent,
     SnackbarComponent,
     ErrorDialogComponent,
-    CustomButtonComponent
+    CustomButtonComponent,
+    ModalStandbyComponent
   ],
   imports: [
     CommonModule,
