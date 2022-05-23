@@ -16,14 +16,14 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import br.com.apinotesimplifier.filter.CustomAuthenticationFilter;
-import br.com.apinotesimplifier.filter.CustomAuthorizationFilter;
+import br.com.apinotesimplifier.filters.CustomAuthenticationFilter;
+import br.com.apinotesimplifier.filters.CustomAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter{
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private final UserDetailsService userDetailsService;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     http.csrf().disable();
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     http.authorizeHttpRequests().antMatchers(HttpMethod.POST, "/api/login/**", "/api/token/refresh/**").permitAll();
-    http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/users/**").hasAnyAuthority("ROLE_USER");
+    http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/users/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN");
     http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/users/save/**").hasAnyAuthority("ROLE_ADMIN");
     http.authorizeHttpRequests().anyRequest().authenticated();
     http.addFilter(customAuthenticationFilter);

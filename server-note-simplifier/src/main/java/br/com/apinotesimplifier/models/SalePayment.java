@@ -1,9 +1,10 @@
 package br.com.apinotesimplifier.models;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,7 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -28,31 +28,33 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "sale_payments")
+public class SalePayment {
   @Id
   @EqualsAndHashCode.Include
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @NotBlank(message = "{required.validation}}")
-  @Column(name = "username", unique = true)
-  private String username;
+  @Column(name = "payment_methods")
+  @ManyToMany(fetch = FetchType.EAGER)
+  private List<PaymentMethod> paymentMethods = new ArrayList<>();
 
-  @Column(name = "password")
-  private String password;
+  @Column(name = "Installment_form")
+  private Integer installmentForm;
 
-  @Column(name = "profession")
-  private String profession;
+  @Column(name = "amount")
+  private BigDecimal amount;
 
-  @Column(name = "roles")
-  @ManyToMany(fetch = FetchType.LAZY)
-  private List<Role> roles = new ArrayList<>();
+  @Column(name = "payday", nullable = true)
+  private LocalDate payday;
 
-  @Column(name = "account_status")
-  private String accountStatus; // 'expired' | 'active' | 'inactive ' | 'blocked'
+  @OneToOne
+  @JoinColumn(name = "id_sale", referencedColumnName = "id")
+  private Sale idSale;
 
-  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @JoinColumn(name = "id_personal_data", referencedColumnName = "id")
-  private PersonalData idPersonalData;
+  @Column(name = "situation")
+  private String situation;
+
+  @Column(name = "date")
+  private LocalDate date;
 }

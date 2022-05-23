@@ -1,4 +1,4 @@
-package br.com.apinotesimplifier.filter;
+package br.com.apinotesimplifier.filters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,7 +54,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
           userRoles.forEach(role -> {
             authorities.add(new SimpleGrantedAuthority(role));
           });
-          UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
+          UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
+              null, authorities);
           SecurityContextHolder.getContext().setAuthentication(authenticationToken);
           filterChain.doFilter(request, response);
         } catch (Exception e) {

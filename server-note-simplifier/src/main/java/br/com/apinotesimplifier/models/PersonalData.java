@@ -5,9 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,15 +19,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @Data
-@Entity(name = "personal_data")
+@Entity
+@Table(name = "personal_data")
 public class PersonalData {
   @Id
+  @EqualsAndHashCode.Include
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
+  @Column(unique = true, name = "id", nullable = false)
   private Long id;
   @Column(name = "name")
   private String name;
-  @Column(name = "contact")
+  @Column(name = "email", unique = true)
+  private String email;
+  @Column(name = "contact", unique = true)
   private String contact;
   @Column(name = "district")
   private String district;
@@ -34,7 +40,7 @@ public class PersonalData {
   @Column(name = "number")
   private String number;
   @Column(name = "complement")
-  private String complement; 
+  private String complement;
   @Column(name = "city")
   private String city;
   @Column(name = "uf")

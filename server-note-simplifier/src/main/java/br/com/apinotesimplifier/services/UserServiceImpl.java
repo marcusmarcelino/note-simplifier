@@ -3,8 +3,11 @@ package br.com.apinotesimplifier.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,24 +16,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.apinotesimplifier.dto.UserDTO;
+import br.com.apinotesimplifier.dto.UserDataDTO;
+import br.com.apinotesimplifier.error.ResourceNotFoundException;
+import br.com.apinotesimplifier.interfaces.RoleService;
 import br.com.apinotesimplifier.interfaces.UserAndPersonalData;
 import br.com.apinotesimplifier.interfaces.UserService;
 import br.com.apinotesimplifier.models.PersonalData;
 import br.com.apinotesimplifier.models.Role;
 import br.com.apinotesimplifier.models.User;
 import br.com.apinotesimplifier.repository.PersonalDataRepository;
-import br.com.apinotesimplifier.repository.RoleRepository;
 import br.com.apinotesimplifier.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Transactional
-@Slf4j
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
   private final UserRepository userRepository;
-  private final RoleRepository roleRepository;
+  private final RoleService roleService;
   @Autowired
   private PasswordEncoder encoder;
   @Autowired
@@ -38,50 +42,70 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = this.userRepository.findByUsername(username);
-
-    if(user == null) {
-      log.error("User not found in the database");
-      throw new UsernameNotFoundException("User not found in the database");
-    } else {
-      log.error("User found in the database: {}", username);
-    }
+    User user = findByUsername(username);
     Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-    user.getRoles().forEach(role -> { 
-      authorities.add(new SimpleGrantedAuthority(role.getName())); 
+    user.getRoles().forEach(role -> {
+      authorities.add(new SimpleGrantedAuthority(role.getName()));
     });
     return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
   }
 
   @Override
-  public User saveUser(UserAndPersonalData userAndPersonalData) {
-    PersonalData personalData = this.personalDataRepository.save(userAndPersonalData.getPersonalData());
-    User userResp = userAndPersonalData.getUser();
-    userResp.setPassword(this.encoder.encode(userResp.getPassword()));
-    User user = this.userRepository.save(userResp);
+  public User save(UserAndPersonalData userAndPersonalData) {
+    PersonalData personalData = personalDataRepository.save(userAndPersonalData.getPersonalData());
+    User user = userAndPersonalData.getUser();
+    user.setPassword(encoder.encode(user.getPassword()));
     user.setIdPersonalData(personalData);
-    log.info("Saving new user {} to the database", user.getIdPersonalData().getName());
-    return user;
+    return userRepository.save(user);
   }
 
   @Override
   public void addRoleToUser(String username, String rolename) {
-    log.info("Adding role {} ro user {}", rolename, username);
-    User user = this.userRepository.findByUsername(username);
-    Role role = this.roleRepository.findByName(rolename);
+    User user = findByUsername(username);
+    Role role = roleService.findRoleByName(rolename);
     user.getRoles().add(role);
+    userRepository.save(user);
   }
 
   @Override
-  public User getUser(String username) {
-    log.info("Fetching user {} ", username);
-    return this.userRepository.findByUsername(username);
+  public User findByUsername(String username) {
+    Optional<User> user = userRepository.findByUsername(username);
+    return user.orElseThrow(() -> new ResourceNotFoundException("User not found in the database!"));
   }
 
   @Override
-  public List<User> getUsers() {
-    log.info("Fetching all users");
-    return this.userRepository.findAll();
+  public User findById(Long id) {
+    Optional<User> user = userRepository.findById(id);
+    return user.orElseThrow(() -> new ResourceNotFoundException("User not found in the database!"));
   }
 
+  @Override
+  public UserDataDTO findUserDTOById(Long id) {
+    Optional<User> user = userRepository.findById(id);
+    return new UserDataDTO(user.orElseThrow(() -> new ResourceNotFoundException("User not found in the database!")));
+  }
+
+  @Override
+  public User update(User user) {
+    findById(user.getId());
+    return userRepository.save(user);
+  }
+
+  @Override
+  public void delete(Long id) {
+    User user = findById(id);
+    userRepository.delete(user);
+  }
+
+  @Override
+  public Page<UserDTO> findAll(Pageable pageable) {
+    Page<User> result = userRepository.findAll(pageable);
+    return result.map(user -> new UserDTO(user));
+  }
+
+  @Override
+  public List<UserDTO> findByRole(String role) {
+    Optional<List<UserDTO>> users = userRepository.findByRole(role);
+    return users.orElseThrow(() -> new ResourceNotFoundException("Users not found in the database!"));
+  }
 }

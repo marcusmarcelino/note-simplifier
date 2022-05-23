@@ -1,4 +1,4 @@
-package br.com.apinotesimplifier.filter;
+package br.com.apinotesimplifier.filters;
 
 import java.io.IOException;
 import java.util.Date;
@@ -61,7 +61,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     log.info("Username is: {}", username);
     log.info("Password is: {}", password);
 
-    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
+        password);
     return this.authenticationManager.authenticate(authenticationToken);
   }
 

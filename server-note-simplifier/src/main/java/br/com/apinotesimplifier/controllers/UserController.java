@@ -20,47 +20,59 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import br.com.apinotesimplifier.dto.UserDTO;
+import br.com.apinotesimplifier.dto.UserDataDTO;
+import br.com.apinotesimplifier.interfaces.RoleService;
+import br.com.apinotesimplifier.interfaces.RoleToUserForm;
 import br.com.apinotesimplifier.interfaces.UserAndPersonalData;
 import br.com.apinotesimplifier.interfaces.UserService;
 import br.com.apinotesimplifier.models.Role;
 import br.com.apinotesimplifier.models.User;
-import lombok.Data;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/")
 public class UserController {
   @Autowired
   private UserService userService;
+  @Autowired
+  private RoleService roleService;
 
   private String AUTHORIZATION = "Authorization";
   private String APPLICATION_JSON_VALUE = "application/json";
 
-  @GetMapping("/users/all")
-  public ResponseEntity<List<User>> getUsers() {
-    return ResponseEntity.ok().body(this.userService.getUsers());
+  // @Value("${AUTHORIZATION}") private String AUTHORIZATION;
+  // @Value("${APPLICATION_JSON_VALUE}") private String APPLICATION_JSON_VALUE;
+
+  @GetMapping("users/all")
+  public ResponseEntity<Page<UserDTO>> getUsers(Pageable pageable) {
+    return ResponseEntity.ok().body(userService.findAll(pageable));
   }
 
-  @PostMapping("/users/save")
+  @PostMapping("users/save")
   public ResponseEntity<User> saveUser(@RequestBody UserAndPersonalData userAndPersonalData) {
     URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toUriString());
-    return ResponseEntity.created(uri).body(this.userService.saveUser(userAndPersonalData));
+    return ResponseEntity.created(uri).body(userService.save(userAndPersonalData));
   }
 
-  @PostMapping("/users/addtouser")
+  @PostMapping("users/addtouser")
   public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form) {
-    this.userService.addRoleToUser(form.getUsername(), form.getRolename());
+    userService.addRoleToUser(form.getUsername(), form.getRolename());
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("/token/refresh")
+  @GetMapping("token/refresh")
   public void refreshToken(HttpServletRequest request, HttpServletResponse response)
       throws StreamWriteException, DatabindException, IOException {
     String authorizationHeader = request.getHeader(AUTHORIZATION);
@@ -73,7 +85,7 @@ public class UserController {
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(refresh_token);
         String username = decodedJWT.getSubject();
-        User user = this.userService.getUser(username);
+        User user = userService.findByUsername(username);
 
         String access_token = JWT.create()
             .withSubject(user.getUsername())
@@ -100,10 +112,15 @@ public class UserController {
       throw new RuntimeException("Refresh token is missing");
     }
   }
-}
 
-@Data
-class RoleToUserForm {
-  private String username;
-  private String rolename;
+  @GetMapping("users/role")
+  public ResponseEntity<List<UserDTO>> getUsersByRole(@RequestParam String role) {
+    roleService.findRoleByName(role);
+    return ResponseEntity.ok().body(userService.findByRole(role));
+  }
+
+  @GetMapping("users/{id}")
+  public ResponseEntity<UserDataDTO> getUsersById(@PathVariable Long id) {
+    return ResponseEntity.ok().body(userService.findUserDTOById(id));
+  }
 }
