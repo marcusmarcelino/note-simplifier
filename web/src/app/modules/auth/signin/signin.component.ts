@@ -40,8 +40,9 @@ export class SigninComponent implements OnInit {
     this.authService.authenticate(credentials)
       .subscribe({
         next: (userCredentials: TokenResponse) => {
-          console.log('Token gerado ', userCredentials);
+          // console.log('Token gerado ', userCredentials);
           if(userCredentials.access_token !== null || userCredentials.access_token !== undefined) {
+            this.authService.setToken(userCredentials.access_token);
             this.authService.setUserIsAuthenticated(true);
             this.router.navigate(['/home']);
             dialogRef.close();
@@ -52,9 +53,7 @@ export class SigninComponent implements OnInit {
           this.authService.setUserIsAuthenticated(false);
           dialogRef.close();
         },
-        complete: () => {
-          console.log('Usuário autenticado com sucesso!');
-        }
+        complete: () => { /*console.log('Usuário autenticado com sucesso!');*/ }
       });
   }
 }

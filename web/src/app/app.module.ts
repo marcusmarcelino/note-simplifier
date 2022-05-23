@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { AuthGuard } from './guards/auth.guard.service';
 import { AuthService } from './modules/auth/services/auth.service';
 import { SharedModule } from './shared/shared.module';
+import { StateManagementModule } from './state-management/state-management.module';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { SharedModule } from './shared/shared.module';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    SharedModule
+    SharedModule,
+    StateManagementModule
   ],
   providers: [AuthService, AuthGuard],
   bootstrap: [AppComponent]

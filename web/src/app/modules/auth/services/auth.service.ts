@@ -12,6 +12,7 @@ export class AuthService {
 
   isAuthenticated: boolean = false;
   showMenu = new EventEmitter<boolean>();
+  private token = new EventEmitter<string | undefined>();
 
   constructor(private httpClient: HttpClient) { }
 
@@ -20,7 +21,7 @@ export class AuthService {
       credentials, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json; charset=utf-8',
-        Authorization: 'Bearer ' + '',
+        "Authorization": 'Bearer ' + '',
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
       })
@@ -40,5 +41,13 @@ export class AuthService {
 
   getIsAuthenticate() {
     return this.isAuthenticated;
+  }
+
+  getToken() {
+    return this.token;
+  }
+
+  setToken(token: string | undefined) {
+    this.token.emit(token);
   }
 }
