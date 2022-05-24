@@ -61,9 +61,9 @@ public class UserController {
   }
 
   @PostMapping("users/save")
-  public ResponseEntity<User> saveUser(@RequestBody UserAndPersonalData userAndPersonalData) {
+  public ResponseEntity<User> saveUser(@RequestBody User user) {
     URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toUriString());
-    return ResponseEntity.created(uri).body(userService.save(userAndPersonalData));
+    return ResponseEntity.created(uri).body(userService.save(user));
   }
 
   @PostMapping("users/addtouser")

@@ -20,12 +20,9 @@ import br.com.apinotesimplifier.dto.UserDTO;
 import br.com.apinotesimplifier.dto.UserDataDTO;
 import br.com.apinotesimplifier.error.ResourceNotFoundException;
 import br.com.apinotesimplifier.interfaces.RoleService;
-import br.com.apinotesimplifier.interfaces.UserAndPersonalData;
 import br.com.apinotesimplifier.interfaces.UserService;
-import br.com.apinotesimplifier.models.PersonalData;
 import br.com.apinotesimplifier.models.Role;
 import br.com.apinotesimplifier.models.User;
-import br.com.apinotesimplifier.repository.PersonalDataRepository;
 import br.com.apinotesimplifier.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -37,8 +34,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   private final RoleService roleService;
   @Autowired
   private PasswordEncoder encoder;
-  @Autowired
-  private PersonalDataRepository personalDataRepository;
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -51,11 +46,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   }
 
   @Override
-  public User save(UserAndPersonalData userAndPersonalData) {
-    PersonalData personalData = personalDataRepository.save(userAndPersonalData.getPersonalData());
-    User user = userAndPersonalData.getUser();
+  public User save(User user) {
     user.setPassword(encoder.encode(user.getPassword()));
-    user.setIdPersonalData(personalData);
     return userRepository.save(user);
   }
 
