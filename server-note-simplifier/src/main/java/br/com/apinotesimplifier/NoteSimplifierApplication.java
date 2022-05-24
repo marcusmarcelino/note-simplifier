@@ -46,7 +46,7 @@ public class NoteSimplifierApplication {
 		return new BCryptPasswordEncoder();
 	}
 
-	// @Bean
+	@Bean
 	CommandLineRunner run(
 			UserService userService,
 			RoleService roleService,
