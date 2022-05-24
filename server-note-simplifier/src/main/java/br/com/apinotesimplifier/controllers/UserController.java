@@ -36,7 +36,6 @@ import br.com.apinotesimplifier.dto.UserDTO;
 import br.com.apinotesimplifier.dto.UserDataDTO;
 import br.com.apinotesimplifier.interfaces.RoleService;
 import br.com.apinotesimplifier.interfaces.RoleToUserForm;
-import br.com.apinotesimplifier.interfaces.UserAndPersonalData;
 import br.com.apinotesimplifier.interfaces.UserService;
 import br.com.apinotesimplifier.models.Role;
 import br.com.apinotesimplifier.models.User;
