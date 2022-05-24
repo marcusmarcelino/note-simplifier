@@ -167,27 +167,34 @@ public class NoteSimplifierApplication {
 			userService.addRoleToUser("professional_user_provider", "ROLE_PROFESSIONAL");
 
 			PaymentMethod payMeth_money = payMethService.save(new PaymentMethod(null, "MONEY", "DINHEIRO AVISTA"));
-			// PaymentMethod payMeth_cred = payMethService.save(new PaymentMethod(null,
-			// "CREDIT_SPOTS", "CREDITO AVISTA"));
-			// PaymentMethod payMeth_cred_inst = payMethService.save(new PaymentMethod(null,
-			// "CREDIT_IN_INSTALLMENTS", "CREDITO PARCELADO"));
-
-			List<Long> paymentMethods = new ArrayList<>();
-			paymentMethods.add(payMeth_money.getId());
+			PaymentMethod payMeth_cred = payMethService.save(new PaymentMethod(null, "CREDIT_SPOTS", "CREDITO AVISTA"));
+			// new PaymentMethod(null "CREDIT_IN_INSTALLMENTS", "CREDITO PARCELADO");
 
 			Product product1 = productService
-					.save(new Product(null, "produto1", "Produto 1", "UN", "19922899", "21998", BigDecimal.valueOf(100)));
+					.save(new Product(null, "product1", "Produto 1", "UN", "19922811", "21941", BigDecimal.valueOf(20), 1));
 			Product product2 = productService
-					.save(new Product(null, "produto2", "Produto 2", "CX", "19922866", "21956", BigDecimal.valueOf(50)));
+					.save(new Product(null, "produto2", "Produto 2", "CX", "19922866", "21956", BigDecimal.valueOf(50), 5));
 			Product product3 = productService
-					.save(new Product(null, "produto3", "Produto 3", "UN", "19922855", "21976", BigDecimal.valueOf(70)));
+					.save(new Product(null, "produto3", "Produto 3", "UN", "19922855", "21976", BigDecimal.valueOf(70), 1));
 			Product product4 = productService
-					.save(new Product(null, "produto4", "Produto 4", "CX", "19922833", "21984", BigDecimal.valueOf(20)));
+					.save(new Product(null, "produto4", "Produto 4", "CX", "19922833", "21984", BigDecimal.valueOf(20), 4));
 
-			SalePayment salePayment = new SalePayment(null, new ArrayList<>(), 1, BigDecimal.valueOf(1000), LocalDate.now(),
-					null, "EM PROCESSAMENTO", LocalDate.now());
-			Sale sale = new Sale(null, null, null, new ArrayList<>(), salePayment, LocalDate.now());
-			Sale saleCreated = saleService.saveWithIds(sale, Long.valueOf(4), Long.valueOf(1), paymentMethods);
+			SalePayment salePayment = new SalePayment();
+			salePayment.setPaymentMethods(Arrays.asList(payMeth_money, payMeth_cred));
+			salePayment.setInstallmentForm(1);
+			salePayment.setTotal(BigDecimal.valueOf(1000));
+			salePayment.setPayday(LocalDate.now());
+			salePayment.setIdSale(null);
+			salePayment.setSituation("PROCESSING");
+			salePayment.setDate(LocalDate.now());
+
+			Sale sale = new Sale();
+			sale.setIdClient(new User(Long.valueOf(1)));
+			sale.setIdSeller(new User(Long.valueOf(4)));
+			sale.setIdSalePayment(salePayment);
+			sale.setDateOfSale(LocalDate.now());
+			sale.setVlTotal(BigDecimal.valueOf(1000));
+			Sale saleCreated = saleService.save(sale);
 
 			List<SellItem> sellItems = new ArrayList<>();
 			SellItem sellItem1 = sellItemService

@@ -15,6 +15,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -52,7 +53,12 @@ public class User {
   @Column(name = "account_status")
   private String accountStatus; // 'expired' | 'active' | 'inactive ' | 'blocked'
 
+  @NotNull(message = "Required field!")
   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "id_personal_data", referencedColumnName = "id")
   private PersonalData idPersonalData;
+
+  public User(Long id) {
+    this.id = id;
+  }
 }

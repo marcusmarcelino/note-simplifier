@@ -1,5 +1,6 @@
 package br.com.apinotesimplifier.models;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,4 +62,7 @@ public class Sale {
   @NotNull(message = "Required field!")
   @Column(name = "dateOfSale")
   private LocalDate dateOfSale;
+
+  @Column(name = "vl_total")
+  private BigDecimal vlTotal;
 }

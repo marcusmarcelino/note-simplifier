@@ -45,8 +45,8 @@ public class SellItem {
   @JoinColumn(name = "id_sale", referencedColumnName = "id", nullable = false)
   private Sale idSale;
 
-  @Column(name = "vl_unitario")
-  private BigDecimal vlUnitario;
+  @Column(name = "vl_unitary")
+  private BigDecimal vlUnitary;
 
   @Column(name = "vl_total")
   private BigDecimal vlTotal;

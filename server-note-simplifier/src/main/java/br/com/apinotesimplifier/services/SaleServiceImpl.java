@@ -36,8 +36,25 @@ public class SaleServiceImpl implements SaleService {
   private PaymentMethodService paymentMethodService;
 
   @Override
-  public Sale save(@Valid Sale sale) {
-    return saleRepository.save(sale);
+  public Sale save(Sale sale) {
+    Optional<User> seller = userRepository.findById(sale.getIdSeller().getId());
+    Optional<User> client = userRepository.findById(sale.getIdClient().getId());
+
+    List<PaymentMethod> payMethods = new ArrayList<>();
+    sale.getIdSalePayment().getPaymentMethods().forEach((payMeth) -> {
+      PaymentMethod paymentMethod = paymentMethodService.findById(payMeth.getId());
+      payMethods.add(paymentMethod);
+    });
+
+    seller.ifPresentOrElse((sell) -> sale.setIdSeller(sell),
+        () -> new ResourceNotFoundException("Seller not found!"));
+    client.ifPresentOrElse((cli) -> sale.setIdClient(cli),
+        () -> new ResourceNotFoundException("Client not found!"));
+
+    sale.getIdSalePayment().setPaymentMethods(payMethods);
+    Sale saleCreated = saleRepository.save(sale);
+    saleCreated.getIdSalePayment().setIdSale(saleCreated);
+    return saleCreated;
   }
 
   @Override
