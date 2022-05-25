@@ -39,10 +39,10 @@ public class SellItemServiceImpl implements SellItemService {
 
   @Override
   public SellItem saveWithIds(SellItemDTO sellItem) {
-    // Sale sale = saleService.findById(sellItem.getIdSale());
+    Sale sale = saleService.findById(sellItem.getIdSale());
     Product product = productService.findById(sellItem.getIdProduct());
     SellItem newSellItem = new SellItem();
-    // newSellItem.setIdSale(sale);
+    newSellItem.setIdSale(sale);
     newSellItem.setIdProduct(product);
     newSellItem.setQuantityItems(sellItem.getQuantityItems());
     return save(newSellItem);
@@ -50,13 +50,13 @@ public class SellItemServiceImpl implements SellItemService {
 
   @Override
   public List<SellItem> saveAllWithIds(List<SellItemDTO> items) {
-    // Sale sale = saleService.findById(items.get(0).getIdSale());
+    Sale sale = saleService.findById(items.get(0).getIdSale());
     List<SellItem> sellItems = new ArrayList<>();
     for (SellItemDTO item : items) {
       Product product = productService.findById(item.getIdProduct());
       SellItem sellItem = new SellItem();
       sellItem.setIdProduct(product);
-      // sellItem.setIdSale(sale);
+      sellItem.setIdSale(sale);
       sellItem.setQuantityItems(item.getQuantityItems());
       sellItems.add(sellItem);
     }

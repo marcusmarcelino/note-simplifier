@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import br.com.apinotesimplifier.models.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-  Optional<Product> findByEanPrincipal(String eanPrincipal);
+  Optional<Product> findByEanMain(String eanPrincipal);
 }

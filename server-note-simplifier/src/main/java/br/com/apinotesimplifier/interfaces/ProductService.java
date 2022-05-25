@@ -14,7 +14,7 @@ public interface ProductService {
 
   Product findById(Long id);
 
-  Product findByEanPrincipal(String eanPrincipal);
+  Product findByEanMain(String eanMain);
 
   Page<Product> findAll(Pageable pageable);
 }

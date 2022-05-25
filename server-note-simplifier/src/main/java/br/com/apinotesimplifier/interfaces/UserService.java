@@ -10,7 +10,7 @@ import br.com.apinotesimplifier.dto.UserDataDTO;
 import br.com.apinotesimplifier.models.User;
 
 public interface UserService {
-  User save(UserAndPersonalData userAndPersonalData);
+  User save(User user);
 
   void addRoleToUser(String username, String rolename);
 

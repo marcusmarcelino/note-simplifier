@@ -41,9 +41,16 @@ public class Product {
   @Column(name = "ean", unique = true)
   private String ean;
 
-  @Column(name = "ean_principal", unique = true)
-  private String eanPrincipal;
+  @Column(name = "ean_main", unique = true)
+  private String eanMain;
 
-  @Column(name = "vl_unitario")
-  private BigDecimal vlUnitario;
+  @Column(name = "vl_unitary")
+  private BigDecimal vlUnitary;
+
+  @Column(name = "quantity_per_box")
+  private Integer quantityPerBox;
+
+  public Product(Long id) {
+    this.id = id;
+  }
 }

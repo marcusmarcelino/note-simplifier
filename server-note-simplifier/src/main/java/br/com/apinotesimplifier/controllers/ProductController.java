@@ -47,7 +47,7 @@ public class ProductController {
 
   @GetMapping("/ean/{eanPrincipal}")
   public ResponseEntity<Product> findByEanPrincipal(@PathVariable String eanPrincipal) {
-    return ResponseEntity.ok().body(productService.findByEanPrincipal(eanPrincipal));
+    return ResponseEntity.ok().body(productService.findByEanMain(eanPrincipal));
   }
 
   @GetMapping("")

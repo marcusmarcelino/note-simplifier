@@ -42,8 +42,8 @@ public class SalePayment {
   @Column(name = "Installment_form")
   private Integer installmentForm;
 
-  @Column(name = "amount")
-  private BigDecimal amount;
+  @Column(name = "total")
+  private BigDecimal total;
 
   @Column(name = "payday", nullable = true)
   private LocalDate payday;

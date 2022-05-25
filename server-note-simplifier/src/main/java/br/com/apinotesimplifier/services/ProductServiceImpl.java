@@ -46,8 +46,8 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
-  public Product findByEanPrincipal(String eanPrincipal) {
-    Optional<Product> product = productRepository.findByEanPrincipal(eanPrincipal);
+  public Product findByEanMain(String eanPrincipal) {
+    Optional<Product> product = productRepository.findByEanMain(eanPrincipal);
     return product.orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
   }
 
