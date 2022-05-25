@@ -12,8 +12,6 @@ import br.com.apinotesimplifier.models.Sale;
 public interface SaleService {
   Sale save(Sale sale);
 
-  Sale saveWithIds(Sale sale, Long idSeller, Long idClient, List<Long> paymentMethods);
-
   Sale findById(Long id);
 
   SaleDTO findSaleDTOById(Long id);

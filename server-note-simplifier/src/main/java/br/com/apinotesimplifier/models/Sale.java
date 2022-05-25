@@ -51,7 +51,7 @@ public class Sale {
 
   @NotNull(message = "Required field!")
   @Column(name = "sell_items")
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "idSale")
+  @OneToMany(cascade = CascadeType.DETACH, fetch = FetchType.LAZY, mappedBy = "idSale")
   private List<SellItem> sellItems = new ArrayList<>();
 
   @NotNull(message = "Required field!")

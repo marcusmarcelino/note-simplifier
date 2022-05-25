@@ -1,12 +1,11 @@
 package br.com.apinotesimplifier.services;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,11 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.apinotesimplifier.dto.SaleDTO;
 import br.com.apinotesimplifier.error.ResourceNotFoundException;
 import br.com.apinotesimplifier.interfaces.PaymentMethodService;
+import br.com.apinotesimplifier.interfaces.ProductService;
 import br.com.apinotesimplifier.interfaces.SaleService;
 import br.com.apinotesimplifier.models.PaymentMethod;
+import br.com.apinotesimplifier.models.Product;
 import br.com.apinotesimplifier.models.Sale;
+import br.com.apinotesimplifier.models.SellItem;
 import br.com.apinotesimplifier.models.User;
 import br.com.apinotesimplifier.repository.SaleRepository;
+import br.com.apinotesimplifier.repository.SellItemRepository;
 import br.com.apinotesimplifier.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +37,10 @@ public class SaleServiceImpl implements SaleService {
   private UserRepository userRepository;
   @Autowired
   private PaymentMethodService paymentMethodService;
+  @Autowired
+  private ProductService productService;
+  @Autowired
+  private SellItemRepository sellItemRepository;
 
   @Override
   public Sale save(Sale sale) {
@@ -52,8 +59,22 @@ public class SaleServiceImpl implements SaleService {
         () -> new ResourceNotFoundException("Client not found!"));
 
     sale.getIdSalePayment().setPaymentMethods(payMethods);
+    List<SellItem> items = sale.getSellItems();
+    sale.setSellItems(new ArrayList<>());
     Sale saleCreated = saleRepository.save(sale);
+
+    items.forEach((item) -> {
+      Product product = productService.findById(item.getIdProduct().getId());
+      item.setIdProduct(product);
+      item.setIdSale(saleCreated);
+      item.setVlUnitary(product.getVlUnitary());
+      item.setVlTotal(product.getVlUnitary().multiply(BigDecimal.valueOf(item.getQuantityItems())));
+    });
+    List<SellItem> itemsCreated = sellItemRepository.saveAll(items);
+
     saleCreated.getIdSalePayment().setIdSale(saleCreated);
+    saleCreated.setSellItems(itemsCreated);
+
     return saleCreated;
   }
 
@@ -77,29 +98,7 @@ public class SaleServiceImpl implements SaleService {
   }
 
   @Override
-  public Sale saveWithIds(@Valid Sale sale, Long idSeller, Long idClient, List<Long> paymentMethods) {
-    Optional<User> seller = userRepository.findById(idSeller);
-    Optional<User> client = userRepository.findById(idClient);
-
-    List<PaymentMethod> payMethods = new ArrayList<>();
-    paymentMethods.forEach((id) -> {
-      PaymentMethod paymentMethod = paymentMethodService.findById(id);
-      payMethods.add(paymentMethod);
-    });
-
-    seller.ifPresentOrElse((sell) -> sale.setIdSeller(sell),
-        () -> new ResourceNotFoundException("Seller not found!"));
-    client.ifPresentOrElse((cli) -> sale.setIdClient(cli),
-        () -> new ResourceNotFoundException("Client not found!"));
-
-    sale.getIdSalePayment().setPaymentMethods(payMethods);
-    Sale saleCreated = saleRepository.save(sale);
-    saleCreated.getIdSalePayment().setIdSale(saleCreated);
-    return saleCreated;
-  }
-
-  @Override
-  public Sale update(@Valid Sale sale) {
+  public Sale update(Sale sale) {
     findById(sale.getId());
     return saleRepository.save(sale);
   }

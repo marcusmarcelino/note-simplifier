@@ -2,9 +2,7 @@ package br.com.apinotesimplifier;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -13,12 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import br.com.apinotesimplifier.dto.SellItemDTO;
 import br.com.apinotesimplifier.interfaces.PaymentMethodService;
 import br.com.apinotesimplifier.interfaces.ProductService;
 import br.com.apinotesimplifier.interfaces.RoleService;
 import br.com.apinotesimplifier.interfaces.SaleService;
-import br.com.apinotesimplifier.interfaces.SellItemService;
 import br.com.apinotesimplifier.interfaces.ServiceProvidedService;
 import br.com.apinotesimplifier.interfaces.UserService;
 import br.com.apinotesimplifier.models.Address;
@@ -44,14 +40,13 @@ public class NoteSimplifierApplication {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
+	// @Bean
 	CommandLineRunner run(
 			UserService userService,
 			RoleService roleService,
 			ProductService productService,
 			SaleService saleService,
 			PaymentMethodService payMethService,
-			SellItemService sellItemService,
 			ServiceProvidedService serviceProvidedService) {
 		return args -> {
 			roleService.saveRole(new Role(null, "ROLE_USER"));
@@ -168,16 +163,47 @@ public class NoteSimplifierApplication {
 
 			PaymentMethod payMeth_money = payMethService.save(new PaymentMethod(null, "MONEY", "DINHEIRO AVISTA"));
 			PaymentMethod payMeth_cred = payMethService.save(new PaymentMethod(null, "CREDIT_SPOTS", "CREDITO AVISTA"));
-			// new PaymentMethod(null "CREDIT_IN_INSTALLMENTS", "CREDITO PARCELADO");
+			payMethService.save(new PaymentMethod(null, "CREDIT_IN_INSTALLMENTS", "CREDITO PARCELADO"));
 
-			Product product1 = productService
-					.save(new Product(null, "product1", "Produto 1", "UN", "19922811", "21941", BigDecimal.valueOf(20), 1));
-			Product product2 = productService
-					.save(new Product(null, "produto2", "Produto 2", "CX", "19922866", "21956", BigDecimal.valueOf(50), 5));
-			Product product3 = productService
-					.save(new Product(null, "produto3", "Produto 3", "UN", "19922855", "21976", BigDecimal.valueOf(70), 1));
-			Product product4 = productService
-					.save(new Product(null, "produto4", "Produto 4", "CX", "19922833", "21984", BigDecimal.valueOf(20), 4));
+			Product product1 = new Product();
+			product1.setName("product1");
+			product1.setDescription("Produto 1");
+			product1.setType("UN");
+			product1.setEan("19922811");
+			product1.setEanMain("21941");
+			product1.setVlUnitary(BigDecimal.valueOf(20));
+			product1.setQuantityPerBox(1);
+			productService.save(product1);
+
+			Product product2 = new Product();
+			product2.setName("produto2");
+			product2.setDescription("Produto 2");
+			product2.setType("CX");
+			product2.setEan("19922866");
+			product2.setEanMain("21956");
+			product2.setVlUnitary(BigDecimal.valueOf(50));
+			product2.setQuantityPerBox(5);
+			productService.save(product2);
+
+			Product product3 = new Product();
+			product3.setName("produto3");
+			product3.setDescription("Produto 3");
+			product3.setType("UN");
+			product3.setEan("19922855");
+			product3.setEanMain("21976");
+			product3.setVlUnitary(BigDecimal.valueOf(70));
+			product3.setQuantityPerBox(1);
+			productService.save(product3);
+
+			Product product4 = new Product();
+			product4.setName("produto4");
+			product4.setDescription("Produto 4");
+			product4.setType("CX");
+			product4.setEan("19922833");
+			product4.setEanMain("21984");
+			product4.setVlUnitary(BigDecimal.valueOf(20));
+			product4.setQuantityPerBox(4);
+			productService.save(product4);
 
 			SalePayment salePayment = new SalePayment();
 			salePayment.setPaymentMethods(Arrays.asList(payMeth_money, payMeth_cred));
@@ -194,22 +220,14 @@ public class NoteSimplifierApplication {
 			sale.setIdSalePayment(salePayment);
 			sale.setDateOfSale(LocalDate.now());
 			sale.setVlTotal(BigDecimal.valueOf(1000));
-			Sale saleCreated = saleService.save(sale);
 
-			List<SellItem> sellItems = new ArrayList<>();
-			SellItem sellItem1 = sellItemService
-					.saveWithIds(new SellItemDTO(null, product1.getId(), product1.getName(), 2, sale.getId()));
-			SellItem sellItem2 = sellItemService
-					.saveWithIds(new SellItemDTO(null, product2.getId(), product1.getName(), 2, sale.getId()));
-			SellItem sellItem3 = sellItemService
-					.saveWithIds(new SellItemDTO(null, product3.getId(), product1.getName(), 2, sale.getId()));
-			SellItem sellItem4 = sellItemService
-					.saveWithIds(new SellItemDTO(null, product4.getId(), product1.getName(), 2, sale.getId()));
-			sellItems.add(sellItem1);
-			sellItems.add(sellItem2);
-			sellItems.add(sellItem3);
-			sellItems.add(sellItem4);
-			saleCreated.setSellItems(sellItems);
+			SellItem item1 = new SellItem(null, new Product(Long.valueOf(1)), 2, sale, null, null);
+			SellItem item2 = new SellItem(null, new Product(Long.valueOf(2)), 2, sale, null, null);
+			SellItem item3 = new SellItem(null, new Product(Long.valueOf(3)), 2, sale, null, null);
+			SellItem item4 = new SellItem(null, new Product(Long.valueOf(4)), 2, sale, null, null);
+
+			sale.setSellItems(Arrays.asList(item1, item2, item3, item4));
+			saleService.save(sale);
 
 			serviceProvidedService.saveServiceprovidedWithIds(new ServiceProvided(null, null, null, "",
 					null, LocalDate.now()), Long.valueOf(5), Long.valueOf(1));
