@@ -3,6 +3,7 @@ package br.com.apinotesimplifier.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,29 +39,25 @@ public class SellItemServiceImpl implements SellItemService {
   }
 
   @Override
-  public SellItem saveWithIds(SellItemDTO sellItem) {
-    Sale sale = saleService.findById(sellItem.getIdSale());
-    Product product = productService.findById(sellItem.getIdProduct());
-    SellItem newSellItem = new SellItem();
-    newSellItem.setIdSale(sale);
-    newSellItem.setIdProduct(product);
-    newSellItem.setQuantityItems(sellItem.getQuantityItems());
-    return save(newSellItem);
+  public SellItem saveItem(SellItem sellItem) {
+    Sale sale = saleService.findById(sellItem.getIdSale().getId());
+    Product product = productService.findById(sellItem.getIdProduct().getId());
+    sellItem.setIdSale(sale);
+    sellItem.setIdProduct(product);
+    return save(sellItem);
   }
 
   @Override
-  public List<SellItem> saveAllWithIds(List<SellItemDTO> items) {
-    Sale sale = saleService.findById(items.get(0).getIdSale());
-    List<SellItem> sellItems = new ArrayList<>();
-    for (SellItemDTO item : items) {
-      Product product = productService.findById(item.getIdProduct());
-      SellItem sellItem = new SellItem();
-      sellItem.setIdProduct(product);
-      sellItem.setIdSale(sale);
-      sellItem.setQuantityItems(item.getQuantityItems());
-      sellItems.add(sellItem);
-    }
-    return sellItemRepository.saveAll(sellItems);
+  public List<SellItem> saveItems(List<SellItem> items) {
+    Sale sale = saleService.findById(items.get(0).getIdSale().getId());
+    items.forEach((item) -> {
+      Product product = productService.findById(item.getIdProduct().getId());
+      item.setIdProduct(product);
+      item.setIdSale(sale);
+    });
+    List<SellItem> itemsCreated = saveAll(items);
+    sale.getSellItems().addAll(itemsCreated);
+    return itemsCreated;
   }
 
   @Override
@@ -75,9 +72,15 @@ public class SellItemServiceImpl implements SellItemService {
   }
 
   @Override
+  public SellItemDTO findItemDTOById(Long id) {
+    Optional<SellItem> sellItem = sellItemRepository.findById(id);
+    return new SellItemDTO(sellItem.orElseThrow(() -> new ResourceNotFoundException("Item not found in database!")));
+  }
+
+  @Override
   public SellItem update(SellItem sellItem) {
     findById(sellItem.getId());
-    return sellItemRepository.save(sellItem);
+    return save(sellItem);
   }
 
   @Override
@@ -87,15 +90,39 @@ public class SellItemServiceImpl implements SellItemService {
   }
 
   @Override
-  public List<SellItem> findByIdSale(Long idSale) {
-    Sale sale = saleService.findById(idSale);
-    Optional<List<SellItem>> items = sellItemRepository.findByIdSale(sale);
-    return items.orElse(new ArrayList<>());
+  public Page<SellItemDTO> findByIdSalePageable(Long idSale, Pageable pageable) {
+    saleService.findById(idSale);
+    Page<SellItem> items = sellItemRepository.findItemsByIdSale(idSale, pageable);
+    return items.map((item) -> new SellItemDTO(item));
   }
 
   @Override
-  public Page<SellItem> findByIdSalePageable(Pageable pageable) {
-    Page<SellItem> page = sellItemRepository.findAll(pageable);
-    return page;
+  public Page<SellItemDTO> pageable(Pageable pageable) {
+    Page<SellItem> itemsPageable = sellItemRepository.findAll(pageable);
+    return itemsPageable.map((item) -> new SellItemDTO(item));
   }
+
+  @Override
+  public List<SellItemDTO> findAllByIdSale(Long idSale) {
+    Sale sale = saleService.findById(idSale);
+    Optional<List<SellItem>> items = sellItemRepository.findByIdSale(sale);
+    if (items.isPresent()) {
+      return items.get().stream().map(sellItem -> new SellItemDTO(sellItem)).collect(Collectors.toList());
+    }
+    return new ArrayList<>();
+  }
+
+  // public Page<Customer> search(String searchTerm, int page, int size) {
+  // PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC,
+  // "name");
+  // return repository.search( searchTerm.toLowerCase(), pageRequest);
+  // }
+
+  // public Page<Customer> findAll() {
+  // int page = 0;
+  // int size = 10;
+  // PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC,
+  // "name");
+  // return new PageImpl<>(repository.findAll(), pageRequest, size);
+  // }
 }

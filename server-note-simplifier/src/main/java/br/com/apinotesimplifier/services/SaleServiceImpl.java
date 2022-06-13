@@ -2,10 +2,10 @@ package br.com.apinotesimplifier.services;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,18 +14,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.apinotesimplifier.dto.SaleDTO;
+import br.com.apinotesimplifier.dto.SaleFormDTO;
+import br.com.apinotesimplifier.enums.AccountstatusUser;
+import br.com.apinotesimplifier.enums.SituationPaymentSale;
 import br.com.apinotesimplifier.error.ResourceNotFoundException;
-import br.com.apinotesimplifier.interfaces.PaymentMethodService;
-import br.com.apinotesimplifier.interfaces.ProductService;
 import br.com.apinotesimplifier.interfaces.SaleService;
-import br.com.apinotesimplifier.models.PaymentMethod;
+import br.com.apinotesimplifier.interfaces.UserService;
 import br.com.apinotesimplifier.models.Product;
 import br.com.apinotesimplifier.models.Sale;
 import br.com.apinotesimplifier.models.SellItem;
 import br.com.apinotesimplifier.models.User;
 import br.com.apinotesimplifier.repository.SaleRepository;
 import br.com.apinotesimplifier.repository.SellItemRepository;
-import br.com.apinotesimplifier.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -34,48 +34,26 @@ public class SaleServiceImpl implements SaleService {
   @Autowired
   private SaleRepository saleRepository;
   @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private PaymentMethodService paymentMethodService;
-  @Autowired
-  private ProductService productService;
+  private UserService userService;
   @Autowired
   private SellItemRepository sellItemRepository;
 
   @Override
-  public Sale save(Sale sale) {
-    Optional<User> seller = userRepository.findById(sale.getIdSeller().getId());
-    Optional<User> client = userRepository.findById(sale.getIdClient().getId());
+  public SaleDTO save(Sale sale) throws Exception {
+    User client = userService.findById(sale.getIdClient().getId());
+    User seller = userService.findById(sale.getIdSeller().getId());
 
-    List<PaymentMethod> payMethods = new ArrayList<>();
-    sale.getIdSalePayment().getPaymentMethods().forEach((payMeth) -> {
-      PaymentMethod paymentMethod = paymentMethodService.findById(payMeth.getId());
-      payMethods.add(paymentMethod);
-    });
+    if (!client.getAccountStatus().equals(AccountstatusUser.active)) {
+      throw new Exception("The user is listed as: " + client.getAccountStatus().toString());
+    }
 
-    seller.ifPresentOrElse((sell) -> sale.setIdSeller(sell),
-        () -> new ResourceNotFoundException("Seller not found!"));
-    client.ifPresentOrElse((cli) -> sale.setIdClient(cli),
-        () -> new ResourceNotFoundException("Client not found!"));
+    sale.getSellItems().forEach((item) -> item.setIdSale(sale));
 
-    sale.getIdSalePayment().setPaymentMethods(payMethods);
-    List<SellItem> items = sale.getSellItems();
-    sale.setSellItems(new ArrayList<>());
-    Sale saleCreated = saleRepository.save(sale);
-
-    items.forEach((item) -> {
-      Product product = productService.findById(item.getIdProduct().getId());
-      item.setIdProduct(product);
-      item.setIdSale(saleCreated);
-      item.setVlUnitary(product.getVlUnitary());
-      item.setVlTotal(product.getVlUnitary().multiply(BigDecimal.valueOf(item.getQuantityItems())));
-    });
-    List<SellItem> itemsCreated = sellItemRepository.saveAll(items);
-
-    saleCreated.getIdSalePayment().setIdSale(saleCreated);
-    saleCreated.setSellItems(itemsCreated);
-
-    return saleCreated;
+    sale.setIdClient(client);
+    sale.setIdSeller(seller);
+    sale.getIdSalePayment().setIdSale(sale);
+    sale.getIdSalePayment().setSituation(SituationPaymentSale.PROCESSING);
+    return new SaleDTO(saleRepository.save(sale));
   }
 
   @Override
@@ -92,15 +70,60 @@ public class SaleServiceImpl implements SaleService {
   }
 
   @Override
-  public List<Sale> findByDateOfSale(LocalDate dateOfSale) {
-    Optional<List<Sale>> sales = saleRepository.findByDateOfSale(dateOfSale);
-    return sales.orElse(new ArrayList<>());
+  public Page<Sale> findByDateOfSale(LocalDate dateOfSale, Pageable pageable) {
+    Page<Sale> page = saleRepository.findByDateOfSale(dateOfSale, pageable);
+    return page;
   }
 
   @Override
-  public Sale update(Sale sale) {
-    findById(sale.getId());
-    return saleRepository.save(sale);
+  public SaleDTO update(SaleFormDTO saleForm) throws Exception {
+    Sale saleFound = findById(saleForm.getId());
+
+    if (saleFound.getIdSalePayment().getSituation().equals(SituationPaymentSale.CONCLUDED)) {
+      throw new Exception(
+          "The sale cannot be changed as it is listed as: " + saleFound.getIdSalePayment().getSituation().toString());
+    }
+
+    if (saleForm.getAddedItems().size() > 0) {
+      saleForm.getAddedItems().forEach((itemAdded) -> {
+        Stream<SellItem> items = saleFound.getSellItems().stream()
+            .filter((item) -> item.getIdProduct().getEanMain().equals(itemAdded.getIdProduct().getEanMain()));
+        if (items.count() == 0) {
+          saleFound.getSellItems().addAll(saleForm.getAddedItems());
+        }
+      });
+    }
+
+    if (saleForm.getRemovedItems().size() > 0) {
+      for (Integer i = 0; i < saleForm.getRemovedItems().size(); i++) {
+        if (saleForm.getRemovedItems().get(i).equals(saleFound.getSellItems().get(i).getId())) {
+          saleFound.getSellItems().remove(saleFound.getSellItems().get(i));
+        }
+      }
+      sellItemRepository.deleteAllById(saleForm.getRemovedItems());
+    }
+
+    if (saleForm.getUpdatedItems().size() > 0) {
+      for (Integer i = 0; i < saleForm.getUpdatedItems().size(); i++) {
+        if (saleForm.getUpdatedItems().get(i).getId().equals(saleFound.getSellItems().get(i).getId())) {
+          SellItem itemForm = saleForm.getUpdatedItems().get(i);
+          Product product = itemForm.getIdProduct();
+          saleFound.getSellItems().get(i).setQuantityItems(itemForm.getQuantityItems());
+          saleFound.getSellItems().get(i).setVlUnitary(product.getVlUnitary());
+          saleFound.getSellItems().get(i).setVlTotal(
+              product.getVlUnitary().multiply(BigDecimal.valueOf(itemForm.getQuantityItems())));
+        }
+      }
+    }
+
+    saleFound.setVlTotal(this.calculateTotal(saleFound.getSellItems()));
+    saleFound.getIdSalePayment().setTotal(this.calculateTotal(saleFound.getSellItems()));
+    saleFound.getIdSalePayment().setInstallmentForm(saleForm.getInstallmentForm());
+    saleFound.getIdSalePayment().setPaymentMethods(saleForm.getPaymentMethods());
+
+    Sale saleUpdated = saleRepository.save(saleFound);
+
+    return new SaleDTO(saleUpdated);
   }
 
   @Override
@@ -111,8 +134,8 @@ public class SaleServiceImpl implements SaleService {
 
   @Override
   public SaleDTO findSaleDTOById(Long id) {
-    Optional<Sale> sale = saleRepository.findById(id);
-    return new SaleDTO(sale.orElseThrow(() -> new ResourceNotFoundException("Sale not found!")));
+    Sale sale = findById(id);
+    return new SaleDTO(sale);
   }
 
   @Override
@@ -120,5 +143,11 @@ public class SaleServiceImpl implements SaleService {
     Page<Sale> page = saleRepository.findAll(pageable);
     saleRepository.findAllSales(page.stream().collect(Collectors.toList()));
     return page.map(sale -> new SaleDTO(sale));
+  }
+
+  public BigDecimal calculateTotal(List<SellItem> items) {
+    BigDecimal vlTotal = BigDecimal.ZERO;
+    items.forEach((item) -> vlTotal.add(item.getVlTotal()));
+    return vlTotal;
   }
 }
