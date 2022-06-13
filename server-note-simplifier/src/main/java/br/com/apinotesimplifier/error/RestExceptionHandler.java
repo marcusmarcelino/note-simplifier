@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,41 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(ResourceNotFoundException.class)
-  public ResponseEntity<MessageExceptionHandler> handleNotFoudException(
-      ResourceNotFoundException resourceNotFoundException, HttpServletRequest httpServletRequest) {
+  public ResponseEntity<MessageExceptionHandler> handleNotFoudException(ResourceNotFoundException ex,
+      HttpServletRequest http) {
     MessageExceptionHandler exceptionHandler = new MessageExceptionHandler(
         new Date(),
         HttpStatus.NOT_FOUND.value(),
         HttpStatus.NOT_FOUND.getReasonPhrase(),
-        resourceNotFoundException.getMessage(),
-        httpServletRequest.getRequestURI());
+        ex.getMessage(),
+        http.getRequestURI());
 
     return new ResponseEntity<>(exceptionHandler, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(NullPointerException.class)
+  public ResponseEntity<MessageExceptionHandler> handleNullPointerException(NullPointerException ex,
+      HttpServletRequest http) {
+    MessageExceptionHandler exceptionHandler = new MessageExceptionHandler(
+        new Date(),
+        HttpStatus.BAD_REQUEST.value(),
+        "NullPointerException",
+        ex.getMessage(),
+        http.getRequestURI());
+
+    return new ResponseEntity<>(exceptionHandler, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<MessageExceptionHandler> handlerConstraintViolationException(ConstraintViolationException ex,
+      HttpServletRequest http) {
+    MessageExceptionHandler exceptionHandler = new MessageExceptionHandler(
+        new Date(),
+        HttpStatus.FORBIDDEN.value(),
+        ex.getCause().getMessage(),
+        ex.getMessage(),
+        http.getRequestURI());
+    return new ResponseEntity<MessageExceptionHandler>(exceptionHandler, HttpStatus.FORBIDDEN);
   }
 
   @Override
@@ -42,8 +68,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
-  private List<ErrorObject> getErrors(MethodArgumentNotValidException exception) {
-    BindingResult bindingResult = exception.getBindingResult();
+  private List<ErrorObject> getErrors(MethodArgumentNotValidException ex) {
+    BindingResult bindingResult = ex.getBindingResult();
     List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 
     return fieldErrors.stream()
