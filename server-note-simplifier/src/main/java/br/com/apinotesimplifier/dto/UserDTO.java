@@ -33,7 +33,7 @@ public class UserDTO {
     this.id = user.getId();
     this.username = user.getUsername();
     this.profission = user.getProfession();
-    this.accountStatus = user.getAccountStatus();
+    this.accountStatus = user.getAccountStatus().toString();
     this.idpersonalData = user.getIdPersonalData().getId();
   }
 }

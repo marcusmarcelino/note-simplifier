@@ -1,6 +1,5 @@
 package br.com.apinotesimplifier.dto;
 
-import br.com.apinotesimplifier.models.PersonalData;
 import br.com.apinotesimplifier.models.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,17 +11,14 @@ public class UserDataDTO {
   private String username;
   private String profission;
   private String accountStatus;
-  private PersonalData idPersonalData;
-
-  public UserDataDTO() {
-  }
+  private PersonalDataDTO idPersonalData;
 
   public UserDataDTO(
       Long id,
       String username,
       String profission,
       String accountStatus,
-      PersonalData idPersonalData) {
+      PersonalDataDTO idPersonalData) {
     this.id = id;
     this.username = username;
     this.profission = profission;
@@ -34,7 +30,7 @@ public class UserDataDTO {
     this.id = user.getId();
     this.username = user.getUsername();
     this.profission = user.getProfession();
-    this.accountStatus = user.getAccountStatus();
-    this.idPersonalData = user.getIdPersonalData();
+    this.accountStatus = user.getAccountStatus().toString();
+    this.idPersonalData = new PersonalDataDTO(user.getIdPersonalData());
   }
 }
