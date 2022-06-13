@@ -1,5 +1,6 @@
 package br.com.apinotesimplifier.models;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import javax.persistence.CascadeType;
@@ -13,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -34,22 +36,31 @@ public class ServiceProvided {
   private Long id;
 
   // Muitos serviços prestados para um cliente
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @NotNull(message = "A client must be assigned to this service provided!")
+  @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
   @JoinColumn(name = "id_client", referencedColumnName = "id")
   private User idClient;
 
   // Muitos serviços prestados por um profissional
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @NotNull(message = "A professional must be assigned to this service provided!")
+  @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
   @JoinColumn(name = "id_professional", referencedColumnName = "id")
   private User idProfessional;
 
   @Column(name = "service_description")
   private String serviceDescription;
 
+  @NotNull(message = "Required field!")
   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @JoinColumn(name = "id_payment_for_service_provided", referencedColumnName = "id", nullable = true)
+  @JoinColumn(name = "id_payment_for_service_provided", referencedColumnName = "id")
   private PaymentForServiceProvided idPaymentForServiceProvided;
 
   @Column(name = "service_date")
   private LocalDate serviceDate;
+
+  @Column(name = "vl_total")
+  private BigDecimal vlTotal;
+
+  @Column(name = "situation")
+  private String situation;
 }

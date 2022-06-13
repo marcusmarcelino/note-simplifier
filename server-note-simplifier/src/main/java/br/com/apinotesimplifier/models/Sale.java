@@ -51,7 +51,7 @@ public class Sale {
 
   @NotNull(message = "Required field!")
   @Column(name = "sell_items")
-  @OneToMany(cascade = CascadeType.DETACH, fetch = FetchType.LAZY, mappedBy = "idSale")
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "idSale")
   private List<SellItem> sellItems = new ArrayList<>();
 
   @NotNull(message = "Required field!")
@@ -65,4 +65,7 @@ public class Sale {
 
   @Column(name = "vl_total")
   private BigDecimal vlTotal;
+
+  @Column(name = "situation")
+  private String situation; // IN_PROGRESS | FINALIZED
 }

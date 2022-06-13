@@ -50,8 +50,8 @@ public class PaymentForServiceProvided {
   @Column(name = "payday")
   private LocalDate payday;
 
-  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @JoinColumn(name = "id_service_provided", referencedColumnName = "id", nullable = true)
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "id_service_provided", referencedColumnName = "id")
   private ServiceProvided idServiceProvided;
 
   @Column(name = "situation")
