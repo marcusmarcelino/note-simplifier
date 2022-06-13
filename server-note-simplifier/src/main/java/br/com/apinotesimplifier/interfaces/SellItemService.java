@@ -11,19 +11,23 @@ import br.com.apinotesimplifier.models.SellItem;
 public interface SellItemService {
   SellItem save(SellItem sellItem);
 
-  SellItem saveWithIds(SellItemDTO sellItem);
+  SellItem saveItem(SellItem sellItem);
 
-  List<SellItem> saveAllWithIds(List<SellItemDTO> sellItems);
+  List<SellItem> saveItems(List<SellItem> sellItems);
 
   List<SellItem> saveAll(List<SellItem> sellItems);
 
   SellItem findById(Long id);
 
+  SellItemDTO findItemDTOById(Long id);
+
   SellItem update(SellItem sellItem);
 
   void delete(Long id);
 
-  List<SellItem> findByIdSale(Long idSale);
+  Page<SellItemDTO> findByIdSalePageable(Long idSale, Pageable pageable);
 
-  Page<SellItem> findByIdSalePageable(Pageable pageable);
+  Page<SellItemDTO> pageable(Pageable pageable);
+
+  List<SellItemDTO> findAllByIdSale(Long idSale);
 }
