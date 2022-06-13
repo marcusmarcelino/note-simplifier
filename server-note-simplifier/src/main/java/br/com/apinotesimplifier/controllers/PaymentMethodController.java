@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,31 +23,31 @@ import br.com.apinotesimplifier.models.PaymentMethod;
 @RequestMapping("/api/paymentmethods")
 public class PaymentMethodController {
   @Autowired
-  private PaymentMethodService paymentMethodService;
+  private PaymentMethodService service;
 
   @PostMapping("")
   public ResponseEntity<PaymentMethod> save(@Valid @RequestBody PaymentMethod paymentMethod) {
-    return ResponseEntity.ok().body(paymentMethodService.save(paymentMethod));
+    return ResponseEntity.ok().body(service.save(paymentMethod));
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<PaymentMethod> getById(@PathVariable Long id) {
-    return ResponseEntity.ok().body(paymentMethodService.findById(id));
+    return ResponseEntity.ok().body(service.findById(id));
   }
 
   @GetMapping("")
   public ResponseEntity<List<PaymentMethod>> getAll() {
-    return ResponseEntity.ok().body(paymentMethodService.findAll());
+    return ResponseEntity.ok().body(service.findAll());
   }
 
   @PutMapping("")
   public ResponseEntity<PaymentMethod> update(@RequestBody PaymentMethod paymentMethod) {
-    return ResponseEntity.ok().body(paymentMethodService.update(paymentMethod));
+    return ResponseEntity.ok().body(service.update(paymentMethod));
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable Long id) {
-    paymentMethodService.delete(id);
-    return ResponseEntity.ok().build();
+    service.delete(id);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 }
