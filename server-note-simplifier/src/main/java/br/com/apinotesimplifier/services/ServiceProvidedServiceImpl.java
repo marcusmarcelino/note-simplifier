@@ -6,15 +6,21 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.apinotesimplifier.dto.ServiceProvidedDTO;
+import br.com.apinotesimplifier.dto.ServiceProvidedFormDTO;
 import br.com.apinotesimplifier.error.ResourceNotFoundException;
+import br.com.apinotesimplifier.interfaces.PaymentMethodService;
 import br.com.apinotesimplifier.interfaces.ServiceProvidedService;
+import br.com.apinotesimplifier.interfaces.UserService;
+import br.com.apinotesimplifier.models.PaymentMethod;
 import br.com.apinotesimplifier.models.ServiceProvided;
 import br.com.apinotesimplifier.models.User;
 import br.com.apinotesimplifier.repository.ServiceProvidedRepository;
-import br.com.apinotesimplifier.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -25,56 +31,91 @@ public class ServiceProvidedServiceImpl implements ServiceProvidedService {
   @Autowired
   private ServiceProvidedRepository serviceProvidedRepository;
   @Autowired
-  private UserRepository userRepository;
+  private UserService userService;
+  @Autowired
+  private PaymentMethodService paymentMethodService;
 
   @Override
-  public ServiceProvided saveServiceProvided(ServiceProvided serviceProv) {
-    return serviceProvidedRepository.save(serviceProv);
+  public ServiceProvidedDTO save(ServiceProvided serviceProvided) {
+    User client = userService.findById(serviceProvided.getIdClient().getId());
+    User professional = userService.findById(serviceProvided.getIdProfessional().getId());
+
+    List<PaymentMethod> payMethods = new ArrayList<>();
+    serviceProvided.getIdPaymentForServiceProvided().getPaymentMethods().forEach((payMeth) -> {
+      PaymentMethod paymentMethod = paymentMethodService.findById(payMeth.getId());
+      payMethods.add(paymentMethod);
+    });
+    serviceProvided.setIdClient(client);
+    serviceProvided.setIdProfessional(professional);
+    serviceProvided.getIdPaymentForServiceProvided().setPaymentMethods(payMethods);
+    ServiceProvided serviceProvidedCreated = serviceProvidedRepository.save(serviceProvided);
+    serviceProvidedCreated.getIdPaymentForServiceProvided().setIdServiceProvided(serviceProvidedCreated);
+
+    return new ServiceProvidedDTO(serviceProvidedCreated);
   }
 
   @Override
-  public ServiceProvided getServiceProvidedById(Long id) {
+  public ServiceProvidedDTO update(ServiceProvidedFormDTO serviceProvidedForm) {
+    ServiceProvided serviceProvided = findById(serviceProvidedForm.getId());
+    if (serviceProvided.getSituation().equals("IN_PROGRESS")) {
+      serviceProvided.setServiceDescription(serviceProvidedForm.getServiceDescription());
+      serviceProvided.setServiceDate(serviceProvidedForm.getServiceDate());
+      serviceProvided.setVlTotal(serviceProvidedForm.getVlTotal());
+      ServiceProvided serviceUpdated = serviceProvidedRepository.save(serviceProvided);
+      return new ServiceProvidedDTO(serviceUpdated);
+    }
+    return new ServiceProvidedDTO(serviceProvided);
+  }
+
+  @Override
+  public ServiceProvidedDTO endService(Long id) {
+    ServiceProvided serviceProvided = findById(id);
+    serviceProvided.setSituation("FINISHED");
+    ServiceProvided serviceUpdated = serviceProvidedRepository.save(serviceProvided);
+    return new ServiceProvidedDTO(serviceUpdated);
+  }
+
+  @Override
+  public ServiceProvided findById(Long id) {
     Optional<ServiceProvided> serviceProvided = serviceProvidedRepository.findById(id);
-    return serviceProvided.orElseThrow(() -> new ResourceNotFoundException("Service provided not found!"));
+    return serviceProvided.orElseThrow(() -> new ResourceNotFoundException("Service provided not found in database!"));
   }
 
   @Override
-  public List<ServiceProvided> getServiceProvidedByIdClient(User idClient) {
-    Optional<List<ServiceProvided>> serviceProvidedList = serviceProvidedRepository.findByIdClient(idClient);
-    return serviceProvidedList.orElse(new ArrayList<>());
+  public ServiceProvidedDTO findServiceProvidedDTOById(Long id) {
+    ServiceProvided serviceProvided = findById(id);
+    return new ServiceProvidedDTO(serviceProvided);
   }
 
   @Override
-  public List<ServiceProvided> getServiceProvidedByIdProfessional(User idProfessional) {
-    Optional<List<ServiceProvided>> serviceProvidedList = serviceProvidedRepository
-        .findByIdProfessional(idProfessional);
-    return serviceProvidedList.orElse(new ArrayList<>());
+  public Page<ServiceProvidedDTO> findByIdClient(Long id, Pageable pageable) {
+    User client = userService.findById(id);
+    Page<ServiceProvided> page = serviceProvidedRepository.findByIdClient(client, pageable);
+    return page.map(servProv -> new ServiceProvidedDTO(servProv));
   }
 
   @Override
-  public List<ServiceProvided> getServicesProvided() {
-    return serviceProvidedRepository.findAll();
+  public Page<ServiceProvidedDTO> findByIdProfessional(Long id, Pageable pageable) {
+    User professional = userService.findById(id);
+    Page<ServiceProvided> page = serviceProvidedRepository.findByIdProfessional(professional, pageable);
+    return page.map((serviceProvided) -> new ServiceProvidedDTO(serviceProvided));
   }
 
   @Override
-  public List<ServiceProvided> getServiceProvidedByServiceDate(LocalDate serviceDate) {
-    Optional<List<ServiceProvided>> serviceProvidedList = serviceProvidedRepository.findByServiceDate(serviceDate);
-    return serviceProvidedList.orElse(new ArrayList<>());
+  public Page<ServiceProvidedDTO> findAll(Pageable pageable) {
+    Page<ServiceProvided> page = serviceProvidedRepository.findAll(pageable);
+    return page.map((serviceProvided) -> new ServiceProvidedDTO(serviceProvided));
   }
 
   @Override
-  public ServiceProvided saveServiceprovidedWithIds(ServiceProvided serviceProvided, Long idProfissional,
-      Long idClient) {
-    Optional<User> profissional = userRepository.findById(idProfissional);
-    Optional<User> client = userRepository.findById(idClient);
+  public Page<ServiceProvidedDTO> findByServiceDate(LocalDate serviceDate, Pageable pageable) {
+    Page<ServiceProvided> page = serviceProvidedRepository.findByServiceDate(serviceDate, pageable);
+    return page.map((serviceProvided) -> new ServiceProvidedDTO(serviceProvided));
+  }
 
-    profissional.ifPresentOrElse((profi) -> serviceProvided.setIdProfessional(profi),
-        () -> new ResourceNotFoundException("Profissional not found!"));
-    client.ifPresentOrElse((cli) -> serviceProvided.setIdClient(cli),
-        () -> new ResourceNotFoundException("Cliente not found!"));
-
-    serviceProvided.setIdClient(client.get());
-    serviceProvided.setIdProfessional(profissional.get());
-    return serviceProvidedRepository.save(serviceProvided);
+  @Override
+  public void delete(Long id) {
+    ServiceProvided servideProvided = findById(id);
+    serviceProvidedRepository.delete(servideProvided);
   }
 }

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,10 +13,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import br.com.apinotesimplifier.enums.SituationPaymentSale;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -36,7 +38,7 @@ public class SalePayment {
   private Long id;
 
   @Column(name = "payment_methods")
-  @ManyToMany(fetch = FetchType.EAGER)
+  @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
   private List<PaymentMethod> paymentMethods = new ArrayList<>();
 
   @Column(name = "Installment_form")
@@ -45,15 +47,15 @@ public class SalePayment {
   @Column(name = "total")
   private BigDecimal total;
 
+  @Column(name = "situation")
+  private SituationPaymentSale situation;
+
   @Column(name = "payday", nullable = true)
   private LocalDate payday;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "id_sale", referencedColumnName = "id")
   private Sale idSale;
-
-  @Column(name = "situation")
-  private String situation;
 
   @Column(name = "date")
   private LocalDate date;

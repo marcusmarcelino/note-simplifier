@@ -40,7 +40,7 @@ public class SellItem {
   @Column(name = "quantity_items")
   private Integer quantityItems;
 
-  @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinColumn(name = "id_sale", referencedColumnName = "id", nullable = false)
   private Sale idSale;
 

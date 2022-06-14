@@ -47,6 +47,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
   @Override
   public User save(User user) {
+    user.getIdPersonalData().setIdUser(user);
     user.setPassword(encoder.encode(user.getPassword()));
     return userRepository.save(user);
   }
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   @Override
   public User findById(Long id) {
     Optional<User> user = userRepository.findById(id);
-    return user.orElseThrow(() -> new ResourceNotFoundException("User not found in the database!"));
+    return user.orElseThrow(() -> new ResourceNotFoundException("User id = " + id + ", not found in the database!"));
   }
 
   @Override

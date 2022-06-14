@@ -1,23 +1,32 @@
 package br.com.apinotesimplifier.interfaces;
 
 import java.time.LocalDate;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import br.com.apinotesimplifier.dto.ServiceProvidedDTO;
+import br.com.apinotesimplifier.dto.ServiceProvidedFormDTO;
 import br.com.apinotesimplifier.models.ServiceProvided;
-import br.com.apinotesimplifier.models.User;
 
 public interface ServiceProvidedService {
-  ServiceProvided saveServiceProvided(ServiceProvided serviceProvided);
+  ServiceProvidedDTO save(ServiceProvided serviceProvided);
 
-  ServiceProvided saveServiceprovidedWithIds(ServiceProvided serviceProvided, Long idProfissional, Long idClient);
+  ServiceProvidedDTO update(ServiceProvidedFormDTO serviceProvided);
 
-  ServiceProvided getServiceProvidedById(Long id);
+  ServiceProvidedDTO endService(Long id);
 
-  List<ServiceProvided> getServiceProvidedByIdClient(User idClient);
+  ServiceProvided findById(Long id);
 
-  List<ServiceProvided> getServiceProvidedByIdProfessional(User idProfessional);
+  ServiceProvidedDTO findServiceProvidedDTOById(Long id);
 
-  List<ServiceProvided> getServiceProvidedByServiceDate(LocalDate serviceDate);
+  Page<ServiceProvidedDTO> findByIdClient(Long id, Pageable pageable);
 
-  List<ServiceProvided> getServicesProvided();
+  Page<ServiceProvidedDTO> findByIdProfessional(Long id, Pageable pageable);
+
+  Page<ServiceProvidedDTO> findByServiceDate(LocalDate serviceDate, Pageable pageable);
+
+  Page<ServiceProvidedDTO> findAll(Pageable pageable);
+
+  void delete(Long id);
 }

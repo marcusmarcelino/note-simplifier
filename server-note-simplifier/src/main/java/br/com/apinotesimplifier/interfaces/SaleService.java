@@ -1,24 +1,24 @@
 package br.com.apinotesimplifier.interfaces;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import br.com.apinotesimplifier.dto.SaleDTO;
+import br.com.apinotesimplifier.dto.SaleFormDTO;
 import br.com.apinotesimplifier.models.Sale;
 
 public interface SaleService {
-  Sale save(Sale sale);
+  SaleDTO save(Sale sale) throws Exception;
 
   Sale findById(Long id);
 
   SaleDTO findSaleDTOById(Long id);
 
-  List<Sale> findByDateOfSale(LocalDate dataOfSale);
+  Page<Sale> findByDateOfSale(LocalDate dateOfSale, Pageable pageable);
 
-  Sale update(Sale sale);
+  SaleDTO update(SaleFormDTO saleForm) throws Exception;
 
   void delete(Long id);
 

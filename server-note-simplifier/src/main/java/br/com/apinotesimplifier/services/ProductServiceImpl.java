@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.apinotesimplifier.dto.ProductFormDTO;
+import br.com.apinotesimplifier.dto.UpdateEanProductFormDTO;
 import br.com.apinotesimplifier.error.ResourceNotFoundException;
 import br.com.apinotesimplifier.interfaces.ProductService;
 import br.com.apinotesimplifier.models.Product;
@@ -28,8 +30,31 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
-  public Product update(Product product) {
-    findById(product.getId());
+  public Product update(ProductFormDTO dto) {
+    Product product = findById(dto.getId());
+    product.setName(dto.getName());
+    product.setVlUnitary(dto.getVlUnitary());
+    product.setDescription(dto.getDescription());
+    product.setQuantityPerBox(dto.getQuantityPerBox());
+    return productRepository.save(product);
+  }
+
+  @Override
+  public Product updateEans(UpdateEanProductFormDTO eanObject) {
+    Product product = findById(eanObject.getId());
+
+    if (eanObject.getEan() != null) {
+      if (!eanObject.getEan().isEmpty() && !eanObject.getEan().isBlank()) {
+        product.setEan(eanObject.getEan());
+      }
+    }
+
+    if (eanObject.getEanMain() != null) {
+      if (!eanObject.getEanMain().isEmpty() && !eanObject.getEanMain().isBlank()) {
+        product.setEanMain(eanObject.getEanMain());
+      }
+    }
+
     return productRepository.save(product);
   }
 

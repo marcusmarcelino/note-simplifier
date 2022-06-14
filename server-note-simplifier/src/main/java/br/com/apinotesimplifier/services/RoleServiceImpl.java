@@ -35,4 +35,16 @@ public class RoleServiceImpl implements RoleService {
     Optional<Role> role = roleRepository.findByName(name);
     return role.orElseThrow(() -> new ResourceNotFoundException("The type '" + name + "' not exist in the database!"));
   }
+
+  @Override
+  public Role findById(Long id) {
+    Optional<Role> role = roleRepository.findById(id);
+    return role.orElseThrow(() -> new ResourceNotFoundException("Role not found in database!"));
+  }
+
+  @Override
+  public void delete(Long id) {
+    Role role = findById(id);
+    roleRepository.delete(role);
+  }
 }

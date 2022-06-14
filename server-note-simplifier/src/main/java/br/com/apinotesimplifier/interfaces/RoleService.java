@@ -10,4 +10,8 @@ public interface RoleService {
   List<Role> getRoles();
 
   Role findRoleByName(String name);
+
+  Role findById(Long id);
+
+  void delete(Long id);
 }
