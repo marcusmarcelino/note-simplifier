@@ -17,6 +17,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import br.com.apinotesimplifier.enums.PaymentSituation;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -55,7 +56,7 @@ public class PaymentForServiceProvided {
   private ServiceProvided idServiceProvided;
 
   @Column(name = "situation")
-  private String situation;
+  private PaymentSituation situation;
 
   @Column(name = "date")
   private LocalDate date;

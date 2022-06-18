@@ -40,13 +40,14 @@ public class SellItem {
   @Column(name = "quantity_items")
   private Integer quantityItems;
 
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id_sale", referencedColumnName = "id", nullable = false)
   private Sale idSale;
 
   @Column(name = "vl_unitary")
   private BigDecimal vlUnitary;
 
-  @Column(name = "vl_total")
-  private BigDecimal vlTotal;
+  public BigDecimal getVlTotal() {
+    return this.vlUnitary.multiply(BigDecimal.valueOf(this.quantityItems));
+  }
 }

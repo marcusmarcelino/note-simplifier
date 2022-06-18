@@ -13,11 +13,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import br.com.apinotesimplifier.enums.SituationPaymentSale;
+import br.com.apinotesimplifier.enums.PaymentSituation;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -38,7 +38,7 @@ public class SalePayment {
   private Long id;
 
   @Column(name = "payment_methods")
-  @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+  @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
   private List<PaymentMethod> paymentMethods = new ArrayList<>();
 
   @Column(name = "Installment_form")
@@ -48,7 +48,7 @@ public class SalePayment {
   private BigDecimal total;
 
   @Column(name = "situation")
-  private SituationPaymentSale situation;
+  private PaymentSituation situation;
 
   @Column(name = "payday", nullable = true)
   private LocalDate payday;

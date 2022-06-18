@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import br.com.apinotesimplifier.enums.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -35,8 +36,8 @@ public class Product {
   @Column(name = "description")
   private String description;
 
-  @Column(name = "type") // UN | CAIXA | FARDO
-  private String type;
+  @Column(name = "type")
+  private ProductType type;
 
   @Column(name = "ean", unique = true)
   private String ean;
