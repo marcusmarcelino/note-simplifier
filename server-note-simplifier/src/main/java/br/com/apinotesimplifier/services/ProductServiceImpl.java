@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.apinotesimplifier.dto.ProductFormDTO;
 import br.com.apinotesimplifier.dto.UpdateEanProductFormDTO;
+import br.com.apinotesimplifier.enums.ProductType;
 import br.com.apinotesimplifier.error.ResourceNotFoundException;
 import br.com.apinotesimplifier.interfaces.ProductService;
 import br.com.apinotesimplifier.models.Product;
@@ -33,10 +34,11 @@ public class ProductServiceImpl implements ProductService {
   public Product update(ProductFormDTO dto) {
     Product product = findById(dto.getId());
     product.setName(dto.getName());
+    product.setType(ProductType.valueOf(dto.getType()));
     product.setVlUnitary(dto.getVlUnitary());
     product.setDescription(dto.getDescription());
     product.setQuantityPerBox(dto.getQuantityPerBox());
-    return productRepository.save(product);
+    return product;
   }
 
   @Override
@@ -55,7 +57,7 @@ public class ProductServiceImpl implements ProductService {
       }
     }
 
-    return productRepository.save(product);
+    return product;
   }
 
   @Override
@@ -64,18 +66,21 @@ public class ProductServiceImpl implements ProductService {
     productRepository.delete(product);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Product findById(Long id) {
     Optional<Product> product = productRepository.findById(id);
-    return product.orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
+    return product.orElseThrow(() -> new ResourceNotFoundException("Product not found in the database!"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Product findByEanMain(String eanPrincipal) {
     Optional<Product> product = productRepository.findByEanMain(eanPrincipal);
-    return product.orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
+    return product.orElseThrow(() -> new ResourceNotFoundException("Product not found in the database!"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Page<Product> findAll(Pageable pageable) {
     Page<Product> page = productRepository.findAll(pageable);

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.apinotesimplifier.dto.ServiceProvidedDTO;
 import br.com.apinotesimplifier.dto.ServiceProvidedFormDTO;
+import br.com.apinotesimplifier.enums.ProgressStatus;
 import br.com.apinotesimplifier.error.ResourceNotFoundException;
 import br.com.apinotesimplifier.interfaces.PaymentMethodService;
 import br.com.apinotesimplifier.interfaces.ServiceProvidedService;
@@ -54,39 +55,45 @@ public class ServiceProvidedServiceImpl implements ServiceProvidedService {
     return new ServiceProvidedDTO(serviceProvidedCreated);
   }
 
+  @Transactional(rollbackFor = { Exception.class })
   @Override
-  public ServiceProvidedDTO update(ServiceProvidedFormDTO serviceProvidedForm) {
+  public ServiceProvidedDTO update(ServiceProvidedFormDTO serviceProvidedForm) throws Exception {
     ServiceProvided serviceProvided = findById(serviceProvidedForm.getId());
-    if (serviceProvided.getSituation().equals("IN_PROGRESS")) {
-      serviceProvided.setServiceDescription(serviceProvidedForm.getServiceDescription());
-      serviceProvided.setServiceDate(serviceProvidedForm.getServiceDate());
-      serviceProvided.setVlTotal(serviceProvidedForm.getVlTotal());
-      ServiceProvided serviceUpdated = serviceProvidedRepository.save(serviceProvided);
-      return new ServiceProvidedDTO(serviceUpdated);
+
+    if (serviceProvided.getSituation().equals(ProgressStatus.FINALIZED)) {
+      String status = serviceProvided.getSituation().toString();
+      throw new Exception("The sale cannot be changed as it is listed as: " + status);
     }
-    return new ServiceProvidedDTO(serviceProvided);
+
+    serviceProvided.setServiceDescription(serviceProvidedForm.getServiceDescription());
+    serviceProvided.setServiceDate(serviceProvidedForm.getServiceDate());
+    serviceProvided.setVlTotal(serviceProvidedForm.getVlTotal());
+
+    return new ServiceProvidedDTO(serviceProvidedRepository.save(serviceProvided));
   }
 
   @Override
   public ServiceProvidedDTO endService(Long id) {
     ServiceProvided serviceProvided = findById(id);
-    serviceProvided.setSituation("FINISHED");
-    ServiceProvided serviceUpdated = serviceProvidedRepository.save(serviceProvided);
-    return new ServiceProvidedDTO(serviceUpdated);
+    serviceProvided.setSituation(ProgressStatus.FINALIZED);
+    return new ServiceProvidedDTO(serviceProvided);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public ServiceProvided findById(Long id) {
     Optional<ServiceProvided> serviceProvided = serviceProvidedRepository.findById(id);
     return serviceProvided.orElseThrow(() -> new ResourceNotFoundException("Service provided not found in database!"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public ServiceProvidedDTO findServiceProvidedDTOById(Long id) {
     ServiceProvided serviceProvided = findById(id);
     return new ServiceProvidedDTO(serviceProvided);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Page<ServiceProvidedDTO> findByIdClient(Long id, Pageable pageable) {
     User client = userService.findById(id);
@@ -94,6 +101,7 @@ public class ServiceProvidedServiceImpl implements ServiceProvidedService {
     return page.map(servProv -> new ServiceProvidedDTO(servProv));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Page<ServiceProvidedDTO> findByIdProfessional(Long id, Pageable pageable) {
     User professional = userService.findById(id);
@@ -101,12 +109,14 @@ public class ServiceProvidedServiceImpl implements ServiceProvidedService {
     return page.map((serviceProvided) -> new ServiceProvidedDTO(serviceProvided));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Page<ServiceProvidedDTO> findAll(Pageable pageable) {
     Page<ServiceProvided> page = serviceProvidedRepository.findAll(pageable);
     return page.map((serviceProvided) -> new ServiceProvidedDTO(serviceProvided));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Page<ServiceProvidedDTO> findByServiceDate(LocalDate serviceDate, Pageable pageable) {
     Page<ServiceProvided> page = serviceProvidedRepository.findByServiceDate(serviceDate, pageable);
