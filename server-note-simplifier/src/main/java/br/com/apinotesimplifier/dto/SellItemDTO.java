@@ -1,6 +1,7 @@
 package br.com.apinotesimplifier.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -16,31 +17,18 @@ public class SellItemDTO implements Serializable {
   private Long idProduct;
   private String productName;
   private Integer quantityItems;
+  private BigDecimal vlUnitary;
+  private BigDecimal vlTotal;
+
   @JsonIgnore
   private Long idSale;
-
-  public SellItemDTO() {
-  }
-
-  public SellItemDTO(Long id, Long idProduct, String productName, Integer quantityItems) {
-    this.id = id;
-    this.idProduct = idProduct;
-    this.productName = productName;
-    this.quantityItems = quantityItems;
-  }
-
-  public SellItemDTO(Long id, Long idProduct, String productName, Integer quantityItems, Long idSale) {
-    this.id = id;
-    this.idProduct = idProduct;
-    this.productName = productName;
-    this.quantityItems = quantityItems;
-    this.idSale = idSale;
-  }
 
   public SellItemDTO(SellItem sellItem) {
     this.id = sellItem.getId();
     this.idProduct = sellItem.getIdProduct().getId();
     this.productName = sellItem.getIdProduct().getName();
     this.quantityItems = sellItem.getQuantityItems();
+    this.vlUnitary = sellItem.getVlUnitary();
+    this.vlTotal = sellItem.getVlTotal();
   }
 }

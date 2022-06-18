@@ -1,5 +1,6 @@
 package br.com.apinotesimplifier.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,25 +17,25 @@ public class SaleDTO {
   private Long idClient;
   private Long idSeller;
   private List<SellItemDTO> sellItems = new ArrayList<>();
-  private Long idSalePayment;
+  private SalePaymentDTO idSalePayment;
   private LocalDate dateOfSale;
-
-  public SaleDTO() {
-  }
+  private BigDecimal vlTotal;
 
   public SaleDTO(
       Long id,
       Long idClient,
       Long idSeller,
       List<SellItemDTO> sellItems,
-      Long idSalePayment,
-      LocalDate dateOfSale) {
+      SalePaymentDTO idSalePayment,
+      LocalDate dateOfSale,
+      BigDecimal vlTotal) {
     this.id = id;
     this.idClient = idClient;
     this.idSeller = idSeller;
     this.sellItems = sellItems;
     this.idSalePayment = idSalePayment;
     this.dateOfSale = dateOfSale;
+    this.vlTotal = vlTotal;
   }
 
   public SaleDTO(Sale sale) {
@@ -45,7 +46,8 @@ public class SaleDTO {
         .stream()
         .map(sellItem -> new SellItemDTO(sellItem))
         .collect(Collectors.toList());
-    this.idSalePayment = sale.getIdSalePayment().getId();
+    this.idSalePayment = new SalePaymentDTO(sale.getIdSalePayment());
     this.dateOfSale = sale.getDateOfSale();
+    this.vlTotal = sale.getVlTotal();
   }
 }

@@ -12,7 +12,7 @@ public class SaleFormDTO {
   private Long id;
   private List<SellItem> updatedItems = new ArrayList<>();
   private List<SellItem> addedItems = new ArrayList<>();
-  private List<Long> removedItems = new ArrayList<>();
+  private List<SellItem> removedItems = new ArrayList<>();
   private List<PaymentMethod> paymentMethods = new ArrayList<>();
   private Integer installmentForm;
 }
