@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +35,12 @@ public class RoleController {
   @PostMapping("")
   public ResponseEntity<Role> saveRole(@Valid @RequestBody Role role) {
     URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toUriString());
-    return ResponseEntity.created(uri).body(this.service.saveRole(role));
+    return ResponseEntity.created(uri).body(this.service.save(role));
+  }
+
+  @PutMapping("")
+  public ResponseEntity<Role> update(@RequestBody Role role) {
+    return ResponseEntity.ok().body(service.update(role));
   }
 
   @DeleteMapping("/{id}")
