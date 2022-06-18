@@ -1,5 +1,5 @@
 package br.com.apinotesimplifier.enums;
 
-public enum AccountstatusUser {
+public enum AccountStatus {
   expired, active, inactive, blocked;
 }

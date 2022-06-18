@@ -1,5 +1,5 @@
 package br.com.apinotesimplifier.enums;
 
-public enum SituationPaymentSale {
+public enum PaymentSituation {
   PROCESSING, CONCLUDED
 }
