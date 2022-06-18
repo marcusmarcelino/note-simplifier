@@ -29,5 +29,5 @@ public interface SellItemService {
 
   Page<SellItemDTO> pageable(Pageable pageable);
 
-  List<SellItemDTO> findAllByIdSale(Long idSale);
+  Page<SellItemDTO> findAllByIdSale(Long idSale, Pageable pageable);
 }

@@ -10,7 +10,7 @@ import br.com.apinotesimplifier.dto.UserDataDTO;
 import br.com.apinotesimplifier.models.User;
 
 public interface UserService {
-  User save(User user);
+  UserDataDTO save(User user);
 
   void addRoleToUser(String username, String rolename);
 
@@ -27,4 +27,8 @@ public interface UserService {
   Page<UserDTO> findAll(Pageable pageable);
 
   List<UserDTO> findByRole(String role);
+
+  void updateAccountStatus(String status, Long id);
+
+  void disableAccount(Long id);
 }
