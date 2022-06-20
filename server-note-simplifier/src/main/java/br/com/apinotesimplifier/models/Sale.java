@@ -19,6 +19,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import br.com.apinotesimplifier.enums.ProgressStatus;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -67,5 +68,5 @@ public class Sale {
   private BigDecimal vlTotal;
 
   @Column(name = "situation")
-  private String situation; // IN_PROGRESS | FINALIZED
+  private ProgressStatus situation;
 }

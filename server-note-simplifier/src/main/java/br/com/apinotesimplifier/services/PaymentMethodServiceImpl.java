@@ -16,6 +16,7 @@ import br.com.apinotesimplifier.repository.PaymentMethodRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class PaymentMethodServiceImpl implements PaymentMethodService {
 
@@ -32,12 +33,14 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
     }
   }
 
+  @Transactional(readOnly = true)
   @Override
   public PaymentMethod findByType(String type) {
     Optional<PaymentMethod> paymentMethod = paymentMethodRepository.findByType(type);
     return paymentMethod.orElseThrow(() -> new ResourceNotFoundException("Payment method not found in database!"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public PaymentMethod findById(Long id) {
     Optional<PaymentMethod> paymentMethod = paymentMethodRepository.findById(id);
@@ -52,8 +55,10 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
 
   @Override
   public PaymentMethod update(PaymentMethod paymentMethod) {
-    findById(paymentMethod.getId());
-    return paymentMethodRepository.save(paymentMethod);
+    PaymentMethod payMeth = findById(paymentMethod.getId());
+    payMeth.setDescription(paymentMethod.getDescription());
+    payMeth.setType(paymentMethod.getType());
+    return payMeth;
   }
 
   @Override

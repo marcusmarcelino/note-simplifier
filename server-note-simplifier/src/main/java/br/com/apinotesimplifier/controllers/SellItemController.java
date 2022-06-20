@@ -59,8 +59,8 @@ public class SellItemController {
   }
 
   @GetMapping("/{id}/list")
-  public ResponseEntity<List<SellItemDTO>> getAllItemsByIdSale(@PathVariable Long id) {
-    return ResponseEntity.ok().body(service.findAllByIdSale(id));
+  public ResponseEntity<Page<SellItemDTO>> getAllItemsByIdSale(@PathVariable Long id, Pageable pageable) {
+    return ResponseEntity.ok().body(service.findAllByIdSale(id, pageable));
   }
 
   @DeleteMapping("/items/{id}")

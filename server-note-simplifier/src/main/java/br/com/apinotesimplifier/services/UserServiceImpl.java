@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.apinotesimplifier.dto.UserDTO;
 import br.com.apinotesimplifier.dto.UserDataDTO;
+import br.com.apinotesimplifier.enums.AccountStatus;
 import br.com.apinotesimplifier.error.ResourceNotFoundException;
 import br.com.apinotesimplifier.interfaces.RoleService;
 import br.com.apinotesimplifier.interfaces.UserService;
@@ -46,10 +47,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   }
 
   @Override
-  public User save(User user) {
+  public UserDataDTO save(User user) {
     user.getIdPersonalData().setIdUser(user);
     user.setPassword(encoder.encode(user.getPassword()));
-    return userRepository.save(user);
+    return new UserDataDTO(userRepository.save(user));
   }
 
   @Override
@@ -57,21 +58,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     User user = findByUsername(username);
     Role role = roleService.findRoleByName(rolename);
     user.getRoles().add(role);
-    userRepository.save(user);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public User findByUsername(String username) {
     Optional<User> user = userRepository.findByUsername(username);
     return user.orElseThrow(() -> new ResourceNotFoundException("User not found in the database!"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public User findById(Long id) {
     Optional<User> user = userRepository.findById(id);
     return user.orElseThrow(() -> new ResourceNotFoundException("User id = " + id + ", not found in the database!"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public UserDataDTO findUserDTOById(Long id) {
     Optional<User> user = userRepository.findById(id);
@@ -90,15 +93,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     userRepository.delete(user);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Page<UserDTO> findAll(Pageable pageable) {
     Page<User> result = userRepository.findAll(pageable);
     return result.map(user -> new UserDTO(user));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<UserDTO> findByRole(String role) {
     Optional<List<UserDTO>> users = userRepository.findByRole(role);
     return users.orElseThrow(() -> new ResourceNotFoundException("Users not found in the database!"));
+  }
+
+  @Override
+  public void updateAccountStatus(String status, Long id) {
+    User user = findById(id);
+    user.setAccountStatus(AccountStatus.valueOf(status));
+  }
+
+  @Override
+  public void disableAccount(Long id) {
+    User user = findById(id);
+    user.setAccountStatus(AccountStatus.blocked);
   }
 }

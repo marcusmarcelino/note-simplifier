@@ -21,21 +21,31 @@ public class RoleServiceImpl implements RoleService {
   private RoleRepository roleRepository;
 
   @Override
-  public Role saveRole(Role role) {
+  public Role save(Role role) {
     return roleRepository.save(role);
   }
 
+  @Override
+  public Role update(Role role) {
+    Role roleFound = findById(role.getId());
+    roleFound.setName(role.getName());
+    return role;
+  }
+
+  @Transactional(readOnly = true)
   @Override
   public List<Role> getRoles() {
     return roleRepository.findAll();
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Role findRoleByName(String name) {
     Optional<Role> role = roleRepository.findByName(name);
     return role.orElseThrow(() -> new ResourceNotFoundException("The type '" + name + "' not exist in the database!"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Role findById(Long id) {
     Optional<Role> role = roleRepository.findById(id);

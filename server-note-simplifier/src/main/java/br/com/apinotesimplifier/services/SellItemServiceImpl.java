@@ -1,9 +1,7 @@
 package br.com.apinotesimplifier.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -65,12 +63,14 @@ public class SellItemServiceImpl implements SellItemService {
     return sellItemRepository.saveAll(sellItems);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public SellItem findById(Long id) {
     Optional<SellItem> sellItem = sellItemRepository.findById(id);
     return sellItem.orElseThrow(() -> new ResourceNotFoundException("Item not found in database!"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public SellItemDTO findItemDTOById(Long id) {
     Optional<SellItem> sellItem = sellItemRepository.findById(id);
@@ -89,6 +89,7 @@ public class SellItemServiceImpl implements SellItemService {
     sellItemRepository.delete(item);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Page<SellItemDTO> findByIdSalePageable(Long idSale, Pageable pageable) {
     saleService.findById(idSale);
@@ -96,33 +97,18 @@ public class SellItemServiceImpl implements SellItemService {
     return items.map((item) -> new SellItemDTO(item));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Page<SellItemDTO> pageable(Pageable pageable) {
     Page<SellItem> itemsPageable = sellItemRepository.findAll(pageable);
     return itemsPageable.map((item) -> new SellItemDTO(item));
   }
 
+  @Transactional(readOnly = true)
   @Override
-  public List<SellItemDTO> findAllByIdSale(Long idSale) {
+  public Page<SellItemDTO> findAllByIdSale(Long idSale, Pageable pageable) {
     Sale sale = saleService.findById(idSale);
-    Optional<List<SellItem>> items = sellItemRepository.findByIdSale(sale);
-    if (items.isPresent()) {
-      return items.get().stream().map(sellItem -> new SellItemDTO(sellItem)).collect(Collectors.toList());
-    }
-    return new ArrayList<>();
+    Page<SellItem> items = sellItemRepository.findByIdSale(sale, pageable);
+    return items.map(sellItem -> new SellItemDTO(sellItem));
   }
-
-  // public Page<Customer> search(String searchTerm, int page, int size) {
-  // PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC,
-  // "name");
-  // return repository.search( searchTerm.toLowerCase(), pageRequest);
-  // }
-
-  // public Page<Customer> findAll() {
-  // int page = 0;
-  // int size = 10;
-  // PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC,
-  // "name");
-  // return new PageImpl<>(repository.findAll(), pageRequest, size);
-  // }
 }

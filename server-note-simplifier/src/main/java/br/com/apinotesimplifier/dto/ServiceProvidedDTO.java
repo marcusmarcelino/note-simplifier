@@ -19,31 +19,12 @@ public class ServiceProvidedDTO {
   private LocalDate serviceDate;
   private BigDecimal vlTotal;
 
-  public ServiceProvidedDTO(
-      Long id,
-      Long idClient,
-      Long idProfessional,
-      String serviceDescription,
-      String situation,
-      Long idPaymentForServiceProvided,
-      LocalDate serviceDate,
-      BigDecimal vlTotal) {
-    this.id = id;
-    this.idClient = idClient;
-    this.idProfessional = idProfessional;
-    this.serviceDescription = serviceDescription;
-    this.situation = situation;
-    this.idPaymentForServiceProvided = idPaymentForServiceProvided;
-    this.serviceDate = serviceDate;
-    this.vlTotal = vlTotal;
-  }
-
   public ServiceProvidedDTO(ServiceProvided serviceProvided) {
     this.id = serviceProvided.getId();
     this.idClient = serviceProvided.getIdClient().getId();
     this.idProfessional = serviceProvided.getIdProfessional().getId();
     this.serviceDescription = serviceProvided.getServiceDescription();
-    this.situation = serviceProvided.getSituation();
+    this.situation = serviceProvided.getSituation().toString();
     this.idPaymentForServiceProvided = serviceProvided.getIdPaymentForServiceProvided().getId();
     this.serviceDate = serviceProvided.getServiceDate();
     this.vlTotal = serviceProvided.getVlTotal();

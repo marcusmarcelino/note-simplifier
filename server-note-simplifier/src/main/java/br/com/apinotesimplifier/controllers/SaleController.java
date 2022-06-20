@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.apinotesimplifier.dto.SaleDTO;
 import br.com.apinotesimplifier.dto.SaleFormDTO;
+import br.com.apinotesimplifier.dto.SaleListDTO;
 import br.com.apinotesimplifier.interfaces.SaleService;
 import br.com.apinotesimplifier.models.Sale;
 
@@ -49,7 +50,7 @@ public class SaleController {
   }
 
   @GetMapping("")
-  public ResponseEntity<Page<SaleDTO>> getAll(Pageable pageable) {
+  public ResponseEntity<Page<SaleListDTO>> getAll(Pageable pageable) {
     return ResponseEntity.ok().body(service.findAllSales(pageable));
   }
 }

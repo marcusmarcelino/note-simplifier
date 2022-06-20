@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import br.com.apinotesimplifier.enums.AccountstatusUser;
+import br.com.apinotesimplifier.enums.AccountStatus;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -52,7 +52,7 @@ public class User {
   private List<Role> roles = new ArrayList<>();
 
   @Column(name = "account_status")
-  private AccountstatusUser accountStatus;
+  private AccountStatus accountStatus;
 
   @NotNull(message = "Required field!")
   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

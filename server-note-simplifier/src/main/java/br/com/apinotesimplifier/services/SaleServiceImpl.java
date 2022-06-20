@@ -15,8 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.apinotesimplifier.dto.SaleDTO;
 import br.com.apinotesimplifier.dto.SaleFormDTO;
-import br.com.apinotesimplifier.enums.AccountstatusUser;
-import br.com.apinotesimplifier.enums.SituationPaymentSale;
+import br.com.apinotesimplifier.dto.SaleListDTO;
+import br.com.apinotesimplifier.enums.AccountStatus;
+import br.com.apinotesimplifier.enums.ProgressStatus;
+import br.com.apinotesimplifier.enums.PaymentSituation;
 import br.com.apinotesimplifier.error.ResourceNotFoundException;
 import br.com.apinotesimplifier.interfaces.SaleService;
 import br.com.apinotesimplifier.interfaces.UserService;
@@ -29,6 +31,7 @@ import br.com.apinotesimplifier.repository.SellItemRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class SaleServiceImpl implements SaleService {
   @Autowired
@@ -43,7 +46,7 @@ public class SaleServiceImpl implements SaleService {
     User client = userService.findById(sale.getIdClient().getId());
     User seller = userService.findById(sale.getIdSeller().getId());
 
-    if (!client.getAccountStatus().equals(AccountstatusUser.active)) {
+    if (!client.getAccountStatus().equals(AccountStatus.active)) {
       throw new Exception("The user is listed as: " + client.getAccountStatus().toString());
     }
 
@@ -52,78 +55,91 @@ public class SaleServiceImpl implements SaleService {
     sale.setIdClient(client);
     sale.setIdSeller(seller);
     sale.getIdSalePayment().setIdSale(sale);
-    sale.getIdSalePayment().setSituation(SituationPaymentSale.PROCESSING);
-    return new SaleDTO(saleRepository.save(sale));
-  }
+    sale.getIdSalePayment().setDate(LocalDate.now());
+    sale.getIdSalePayment().setSituation(PaymentSituation.PROCESSING);
+    sale.getIdSalePayment().setTotal(this.calculateTotal(sale.getSellItems()));
+    sale.setVlTotal(this.calculateTotal(sale.getSellItems()));
+    sale.setSituation(ProgressStatus.IN_PROGRESS);
 
-  @Override
-  public Sale findById(Long id) {
-    Optional<Sale> sale = saleRepository.findById(id);
-    return sale.orElseThrow(() -> new ResourceNotFoundException("Service provided not found"));
+    return new SaleDTO(saleRepository.save(sale));
   }
 
   @Transactional(readOnly = true)
   @Override
-  public Page<SaleDTO> findAll(Pageable pageable) {
-    Page<Sale> result = saleRepository.findAll(pageable);
-    return result.map(sale -> new SaleDTO(sale));
+  public Sale findById(Long id) {
+    Optional<Sale> sale = saleRepository.findById(id);
+    return sale.orElseThrow(() -> new ResourceNotFoundException("Sale not found in the database!"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Page<Sale> findByDateOfSale(LocalDate dateOfSale, Pageable pageable) {
     Page<Sale> page = saleRepository.findByDateOfSale(dateOfSale, pageable);
     return page;
   }
 
+  @Transactional(rollbackFor = { Exception.class })
   @Override
   public SaleDTO update(SaleFormDTO saleForm) throws Exception {
-    Sale saleFound = findById(saleForm.getId());
+    try {
+      Sale saleFound = findById(saleForm.getId());
 
-    if (saleFound.getIdSalePayment().getSituation().equals(SituationPaymentSale.CONCLUDED)) {
-      throw new Exception(
-          "The sale cannot be changed as it is listed as: " + saleFound.getIdSalePayment().getSituation().toString());
-    }
+      if (saleFound.getSituation().equals(ProgressStatus.FINALIZED)) {
+        String status = saleFound.getSituation().toString();
+        throw new Exception("The sale cannot be changed as it is listed as: " + status);
+      }
 
-    if (saleForm.getAddedItems().size() > 0) {
-      saleForm.getAddedItems().forEach((itemAdded) -> {
-        Stream<SellItem> items = saleFound.getSellItems().stream()
-            .filter((item) -> item.getIdProduct().getEanMain().equals(itemAdded.getIdProduct().getEanMain()));
-        if (items.count() == 0) {
-          saleFound.getSellItems().addAll(saleForm.getAddedItems());
-        }
-      });
-    }
+      if (saleForm.getAddedItems().size() > 0) {
+        for (SellItem itemAdded : saleForm.getAddedItems()) {
+          Stream<SellItem> sellItems = saleFound.getSellItems().stream();
+          String eanMain = itemAdded.getIdProduct().getEanMain();
+          Long count = sellItems.filter((item) -> item.getIdProduct().getEanMain().equals(eanMain)).count();
 
-    if (saleForm.getRemovedItems().size() > 0) {
-      for (Integer i = 0; i < saleForm.getRemovedItems().size(); i++) {
-        if (saleForm.getRemovedItems().get(i).equals(saleFound.getSellItems().get(i).getId())) {
-          saleFound.getSellItems().remove(saleFound.getSellItems().get(i));
+          if (count == 0) {
+            itemAdded.setIdSale(saleFound);
+            saleFound.getSellItems().add(itemAdded);
+          }
         }
       }
-      sellItemRepository.deleteAllById(saleForm.getRemovedItems());
-    }
 
-    if (saleForm.getUpdatedItems().size() > 0) {
-      for (Integer i = 0; i < saleForm.getUpdatedItems().size(); i++) {
-        if (saleForm.getUpdatedItems().get(i).getId().equals(saleFound.getSellItems().get(i).getId())) {
-          SellItem itemForm = saleForm.getUpdatedItems().get(i);
-          Product product = itemForm.getIdProduct();
-          saleFound.getSellItems().get(i).setQuantityItems(itemForm.getQuantityItems());
-          saleFound.getSellItems().get(i).setVlUnitary(product.getVlUnitary());
-          saleFound.getSellItems().get(i).setVlTotal(
-              product.getVlUnitary().multiply(BigDecimal.valueOf(itemForm.getQuantityItems())));
+      if (saleForm.getRemovedItems().size() > 0) {
+        for (SellItem sellItem : saleForm.getRemovedItems()) {
+          Integer indexOf = saleFound.getSellItems().indexOf(sellItem);
+          if (indexOf > -1) {
+            Optional<SellItem> removedItem = sellItemRepository.findById(saleFound.getSellItems().get(indexOf).getId());
+            saleFound.getSellItems().remove(saleFound.getSellItems().get(indexOf));
+            removedItem.ifPresentOrElse((item) -> sellItemRepository.delete(removedItem.get()),
+                () -> new ResourceNotFoundException("Item not found in the database!"));
+          }
         }
       }
+
+      if (saleForm.getUpdatedItems().size() > 0) {
+        for (SellItem sellItem : saleForm.getUpdatedItems()) {
+          Integer indexOf = saleFound.getSellItems().indexOf(sellItem);
+          if (indexOf > -1) {
+            Product product = sellItem.getIdProduct();
+            saleFound.getSellItems().get(indexOf).setQuantityItems(sellItem.getQuantityItems());
+            saleFound.getSellItems().get(indexOf).setVlUnitary(product.getVlUnitary());
+          }
+        }
+      }
+
+      saleFound.setVlTotal(this.calculateTotal(saleFound.getSellItems()));
+      saleFound.getIdSalePayment().setTotal(this.calculateTotal(saleFound.getSellItems()));
+
+      if (saleForm.getInstallmentForm() != null) {
+        saleFound.getIdSalePayment().setInstallmentForm(saleForm.getInstallmentForm());
+      }
+
+      if (saleForm.getPaymentMethods().size() > 0) {
+        saleFound.getIdSalePayment().setPaymentMethods(saleForm.getPaymentMethods());
+      }
+
+      return new SaleDTO(saleRepository.save(saleFound));
+    } catch (Exception e) {
+      throw new Exception("Error in updated sale: " + e);
     }
-
-    saleFound.setVlTotal(this.calculateTotal(saleFound.getSellItems()));
-    saleFound.getIdSalePayment().setTotal(this.calculateTotal(saleFound.getSellItems()));
-    saleFound.getIdSalePayment().setInstallmentForm(saleForm.getInstallmentForm());
-    saleFound.getIdSalePayment().setPaymentMethods(saleForm.getPaymentMethods());
-
-    Sale saleUpdated = saleRepository.save(saleFound);
-
-    return new SaleDTO(saleUpdated);
   }
 
   @Override
@@ -132,22 +148,23 @@ public class SaleServiceImpl implements SaleService {
     saleRepository.delete(sale);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public SaleDTO findSaleDTOById(Long id) {
     Sale sale = findById(id);
     return new SaleDTO(sale);
   }
 
+  @Transactional(readOnly = true)
   @Override
-  public Page<SaleDTO> findAllSales(Pageable pageable) {
+  public Page<SaleListDTO> findAllSales(Pageable pageable) {
     Page<Sale> page = saleRepository.findAll(pageable);
     saleRepository.findAllSales(page.stream().collect(Collectors.toList()));
-    return page.map(sale -> new SaleDTO(sale));
+    return page.map(sale -> new SaleListDTO(sale));
   }
 
-  public BigDecimal calculateTotal(List<SellItem> items) {
-    BigDecimal vlTotal = BigDecimal.ZERO;
-    items.forEach((item) -> vlTotal.add(item.getVlTotal()));
+  private BigDecimal calculateTotal(List<SellItem> items) {
+    BigDecimal vlTotal = items.stream().map(SellItem::getVlTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
     return vlTotal;
   }
 }

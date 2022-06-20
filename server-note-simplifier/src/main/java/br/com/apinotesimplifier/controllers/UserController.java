@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -26,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,7 +43,7 @@ import br.com.apinotesimplifier.models.Role;
 import br.com.apinotesimplifier.models.User;
 
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class UserController {
   @Autowired
   private UserService userService;
@@ -54,24 +56,24 @@ public class UserController {
   // @Value("${AUTHORIZATION}") private String AUTHORIZATION;
   // @Value("${APPLICATION_JSON_VALUE}") private String APPLICATION_JSON_VALUE;
 
-  @GetMapping("users/all")
+  @GetMapping("/users/all")
   public ResponseEntity<Page<UserDTO>> getUsers(Pageable pageable) {
     return ResponseEntity.ok().body(userService.findAll(pageable));
   }
 
-  @PostMapping("users/save")
-  public ResponseEntity<User> saveUser(@RequestBody User user) {
+  @PostMapping("/users")
+  public ResponseEntity<UserDataDTO> saveUser(@Valid @RequestBody User user) {
     URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toUriString());
     return ResponseEntity.created(uri).body(userService.save(user));
   }
 
-  @PostMapping("users/addtouser")
+  @PutMapping("/users/addrole")
   public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form) {
     userService.addRoleToUser(form.getUsername(), form.getRolename());
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("token/refresh")
+  @GetMapping("/token/refresh")
   public void refreshToken(HttpServletRequest request, HttpServletResponse response)
       throws StreamWriteException, DatabindException, IOException {
     String authorizationHeader = request.getHeader(AUTHORIZATION);
@@ -112,14 +114,26 @@ public class UserController {
     }
   }
 
-  @GetMapping("users/role")
+  @GetMapping("/users/role")
   public ResponseEntity<List<UserDTO>> getUsersByRole(@RequestParam String role) {
     roleService.findRoleByName(role);
     return ResponseEntity.ok().body(userService.findByRole(role));
   }
 
-  @GetMapping("users/{id}")
+  @GetMapping("/users/{id}")
   public ResponseEntity<UserDataDTO> getUsersById(@PathVariable Long id) {
     return ResponseEntity.ok().body(userService.findUserDTOById(id));
+  }
+
+  @PutMapping("/users/accountstatus/{id}")
+  public ResponseEntity<?> updateStatusAccount(@RequestParam String status, @PathVariable Long id) {
+    userService.updateAccountStatus(status, id);
+    return ResponseEntity.ok().build();
+  }
+
+  @PutMapping("/users/disable/{id}")
+  public ResponseEntity<?> disableAccount(@PathVariable Long id) {
+    userService.disableAccount(id);
+    return ResponseEntity.ok().build();
   }
 }

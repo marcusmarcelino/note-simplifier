@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import br.com.apinotesimplifier.dto.SaleDTO;
 import br.com.apinotesimplifier.dto.SaleFormDTO;
+import br.com.apinotesimplifier.dto.SaleListDTO;
 import br.com.apinotesimplifier.models.Sale;
 
 public interface SaleService {
@@ -22,7 +23,5 @@ public interface SaleService {
 
   void delete(Long id);
 
-  Page<SaleDTO> findAll(Pageable pageable);
-
-  Page<SaleDTO> findAllSales(Pageable pageable);
+  Page<SaleListDTO> findAllSales(Pageable pageable);
 }

@@ -12,7 +12,7 @@ import br.com.apinotesimplifier.models.ServiceProvided;
 public interface ServiceProvidedService {
   ServiceProvidedDTO save(ServiceProvided serviceProvided);
 
-  ServiceProvidedDTO update(ServiceProvidedFormDTO serviceProvided);
+  ServiceProvidedDTO update(ServiceProvidedFormDTO serviceProvided) throws Exception;
 
   ServiceProvidedDTO endService(Long id);
 

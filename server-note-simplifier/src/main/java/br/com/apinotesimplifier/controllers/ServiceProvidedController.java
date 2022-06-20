@@ -37,8 +37,8 @@ public class ServiceProvidedController {
   }
 
   @PutMapping("")
-  public ResponseEntity<ServiceProvidedDTO> updated(@RequestBody ServiceProvidedFormDTO serviceProvided) {
-    System.out.println("UPDATE SERVICE PROVIDED ===>>>>" + serviceProvided);
+  public ResponseEntity<ServiceProvidedDTO> updated(@RequestBody ServiceProvidedFormDTO serviceProvided)
+      throws Exception {
     return ResponseEntity.ok().body(service.update(serviceProvided));
   }
 
